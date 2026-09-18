@@ -1,0 +1,211 @@
+// Outwork CRM data model
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+enum ClientStage {
+  INTERESTED
+  CANDIDATE_MATCHED
+  CONTRACT_SIGNED
+  TRIAL_PASSED
+  LOST
+}
+
+enum CandidateStage {
+  SOURCED
+  SUITABLE
+  MATCHED
+  ACCEPTED
+  REJECTED
+}
+
+enum JobStatus {
+  OPEN
+  ON_HOLD
+  CLOSED
+}
+
+enum MatchStatus {
+  PROPOSED
+  ACCEPTED
+  REJECTED
+}
+
+enum EmailDirection {
+  INBOUND
+  OUTBOUND
+}
+
+model User {
+  id            String         @id @default(cuid())
+  username      String         @unique
+  email         String         @unique
+  name          String
+  passwordHash  String
+  role          Role           @default(USER)
+  active        Boolean        @default(true)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  contacts      Contact[]      @relation("ContactOwner")
+  activities    Activity[]
+  googleAccount GoogleAccount?
+}
+
+model GoogleAccount {
+  id           String    @id @default(cuid())
+  userId       String    @unique
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  googleEmail  String
+  accessToken  String    @db.Text
+  refreshToken String?   @db.Text
+  scope        String?
+  expiresAt    DateTime?
+  connectedAt  DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model Contact {
+  id        String    @id @default(cuid())
+  firstName String
+  lastName  String
+  email     String?
+  phone     String?
+  company   String?
+  notes     String?   @db.Text
+  ownerId   String
+  owner     User      @relation("ContactOwner", fields: [ownerId], references: [id])
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  client     Client?
+  candidate  Candidate?
+  emails     EmailMessage[]
+  meetings   Meeting[]
+  activities Activity[]
+
+  @@index([ownerId])
+  @@index([email])
+}
+
+model Client {
+  id          String      @id @default(cuid())
+  contactId   String      @unique
+  contact     Contact     @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  companyName String
+  stage       ClientStage @default(INTERESTED)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  jobs Job[]
+
+  @@index([stage])
+}
+
+model Job {
+  id          String    @id @default(cuid())
+  clientId    String
+  client      Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  title       String
+  description String?   @db.Text
+  status      JobStatus @default(OPEN)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  matches CandidateMatch[]
+
+  @@index([clientId])
+}
+
+model Candidate {
+  id           String         @id @default(cuid())
+  contactId    String         @unique
+  contact      Contact        @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  stage        CandidateStage @default(SOURCED)
+  skills       String?
+  resumeNotes  String?        @db.Text
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  matches CandidateMatch[]
+
+  @@index([stage])
+}
+
+model CandidateMatch {
+  id          String      @id @default(cuid())
+  candidateId String
+  candidate   Candidate   @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  jobId       String
+  job         Job         @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  status      MatchStatus @default(PROPOSED)
+  notes       String?     @db.Text
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@unique([candidateId, jobId])
+  @@index([jobId])
+}
+
+model EmailMessage {
+  id              String         @id @default(cuid())
+  contactId       String
+  contact         Contact        @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  gmailMessageId  String?        @unique
+  gmailThreadId   String?
+  subject         String
+  fromAddress     String
+  toAddress       String
+  snippet         String?
+  body            String?        @db.Text
+  direction       EmailDirection @default(OUTBOUND)
+  sentAt          DateTime       @default(now())
+  createdAt       DateTime       @default(now())
+
+  @@index([contactId])
+}
+
+model Meeting {
+  id             String   @id @default(cuid())
+  contactId      String
+  contact        Contact  @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  title          String
+  googleEventId  String?  @unique
+  meetLink       String?
+  scheduledStart DateTime
+  scheduledEnd   DateTime?
+  notes          String?  @db.Text
+  createdAt      DateTime @default(now())
+
+  @@index([contactId])
+}
+
+model Activity {
+  id        String   @id @default(cuid())
+  contactId String
+  contact   Contact  @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id])
+  body      String   @db.Text
+  createdAt DateTime @default(now())
+
+  @@index([contactId])
+}
+
+model Setting {
+  key       String   @id
+  value     Json
+  updatedAt DateTime @updatedAt
+}
