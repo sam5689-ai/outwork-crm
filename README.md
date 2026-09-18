@@ -89,6 +89,49 @@ the same connection; the current scaffolding stores emails against a
 contact (`EmailMessage` model) and is ready for a sync job to populate it
 via the Gmail API.
 
+## Deploying to Railway
+
+The repo includes a `railway.json` and a `start:prod` script (`prisma migrate
+deploy && next start`), so Railway's default Nixpacks build works out of the
+box:
+
+1. **New Project → Deploy from GitHub repo**, pick this repo/branch.
+2. **Add a Postgres database** to the same Railway project (`+ New` →
+   `Database` → `PostgreSQL`), then in the app service's **Variables** tab
+   add `DATABASE_URL` as a reference to the Postgres plugin's connection
+   string (Railway suggests this automatically once both services are in
+   the same project).
+3. Add the rest of the required variables on the app service:
+   - `AUTH_SECRET` — `openssl rand -base64 32`
+   - `NEXTAUTH_URL` — your Railway public domain, e.g.
+     `https://outwork-crm.up.railway.app` (set this after Railway assigns a
+     domain under **Settings → Networking → Generate Domain**)
+   - `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` / `GOOGLE_REDIRECT_URI` —
+     optional; set `GOOGLE_REDIRECT_URI` to
+     `https://<your-domain>/api/google/callback` and add that same URL to
+     the OAuth client's authorized redirect URIs in Google Cloud Console
+   - `SEED_ADMIN_USERNAME` / `SEED_ADMIN_EMAIL` / `SEED_ADMIN_PASSWORD` —
+     only read by the manual seed step below, not by the app at runtime
+4. Deploy. Railway builds with `npm run build` and starts with
+   `npm run start:prod`, which applies any pending Prisma migrations before
+   starting the server — safe to run on every boot. `next start` binds to
+   Railway's `$PORT` automatically.
+5. **Create the first admin user** — this only needs to run once, so it's
+   not part of the boot command. Use the Railway CLI:
+   ```bash
+   railway link      # link to your project, if not already
+   railway run npm run db:seed
+   ```
+   (or open a shell on the service from the Railway dashboard and run
+   `npm run db:seed` there).
+
+Why Railway over Vercel here: the Prisma client uses a raw `pg` connection
+pool (`@prisma/adapter-pg`), which assumes a long-lived Node process reusing
+one pool — exactly how Railway runs the app. Vercel's serverless functions
+spin up per-request and tend to exhaust Postgres connections with a raw
+pool unless you add a pooler (Neon/Supabase pooled connection string or
+PgBouncer); Railway avoids that extra piece entirely.
+
 ## Project structure
 
 ```
@@ -106,6 +149,7 @@ src/components/              Shared UI (cards, buttons, forms) and feature compo
 ```bash
 npm run dev          # start the dev server
 npm run build         # production build
+npm run start:prod    # apply pending migrations, then start (used in production)
 npm run lint          # eslint
 npm run db:migrate    # run Prisma migrations
 npm run db:seed       # seed the database

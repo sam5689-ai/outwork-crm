@@ -6,10 +6,15 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "start:prod": "prisma migrate deploy && next start",
+    "postinstall": "prisma generate",
     "lint": "eslint",
     "db:migrate": "prisma migrate dev",
     "db:seed": "tsx prisma/seed.ts",
     "db:studio": "prisma studio"
+  },
+  "engines": {
+    "node": ">=20.9.0"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
