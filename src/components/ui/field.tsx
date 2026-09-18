@@ -1,7 +1,7 @@
 import { clsx } from "clsx";
 
 const fieldClass =
-  "w-full rounded-lg border border-slate-200 px-3.5 py-2 text-sm text-slate-800 shadow-sm outline-none transition focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100";
+  "w-full rounded-lg border border-neutral-200 px-3.5 py-2 text-sm text-neutral-900 shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100";
 
 export function Label({
   children,
@@ -13,7 +13,7 @@ export function Label({
   return (
     <label
       htmlFor={htmlFor}
-      className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500"
+      className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-neutral-500"
     >
       {children}
     </label>

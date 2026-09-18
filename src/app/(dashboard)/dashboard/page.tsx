@@ -56,13 +56,13 @@ export default async function DashboardPage() {
           label="Contacts"
           value={contactCount}
           icon={Contact2}
-          color="indigo"
+          color="blue"
         />
         <StatCard
           label="Clients"
           value={clientCount}
           icon={Building2}
-          color="rose"
+          color="violet"
         />
         <StatCard
           label="Candidates"
@@ -81,12 +81,12 @@ export default async function DashboardPage() {
       <div className="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-2">
         <Card>
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-slate-800">
+            <h2 className="text-sm font-semibold text-neutral-900">
               Client Pipeline
             </h2>
             <Link
               href="/clients"
-              className="text-xs font-semibold text-indigo-500 hover:underline"
+              className="text-xs font-semibold text-blue-600 hover:underline"
             >
               View all
             </Link>
@@ -98,7 +98,7 @@ export default async function DashboardPage() {
                   <Badge className={CLIENT_STAGE_COLORS[stage]}>
                     {CLIENT_STAGE_LABELS[stage]}
                   </Badge>
-                  <span className="text-sm font-semibold text-slate-700">
+                  <span className="text-sm font-semibold text-neutral-700">
                     {clientStageCounts[stage] ?? 0}
                   </span>
                 </div>
@@ -109,12 +109,12 @@ export default async function DashboardPage() {
 
         <Card>
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-slate-800">
+            <h2 className="text-sm font-semibold text-neutral-900">
               Candidate Pipeline
             </h2>
             <Link
               href="/candidates"
-              className="text-xs font-semibold text-indigo-500 hover:underline"
+              className="text-xs font-semibold text-blue-600 hover:underline"
             >
               View all
             </Link>
@@ -126,7 +126,7 @@ export default async function DashboardPage() {
                   <Badge className={CANDIDATE_STAGE_COLORS[stage]}>
                     {CANDIDATE_STAGE_LABELS[stage]}
                   </Badge>
-                  <span className="text-sm font-semibold text-slate-700">
+                  <span className="text-sm font-semibold text-neutral-700">
                     {candidateStageCounts[stage] ?? 0}
                   </span>
                 </div>
@@ -138,61 +138,61 @@ export default async function DashboardPage() {
 
       <Card className="mt-6">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-slate-800">
+          <h2 className="text-sm font-semibold text-neutral-900">
             Recent Contacts
           </h2>
           <Link
             href="/contacts"
-            className="text-xs font-semibold text-indigo-500 hover:underline"
+            className="text-xs font-semibold text-blue-600 hover:underline"
           >
             View all
           </Link>
         </div>
         {recentContacts.length === 0 ? (
-          <p className="py-6 text-center text-sm text-slate-400">
+          <p className="py-6 text-center text-sm text-neutral-400">
             No contacts yet. Add your first contact to get started.
           </p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[640px] text-left text-sm">
               <thead>
-                <tr className="text-xs uppercase tracking-wide text-slate-400">
+                <tr className="text-xs uppercase tracking-wide text-neutral-400">
                   <th className="pb-2 font-semibold">Name</th>
                   <th className="pb-2 font-semibold">Company</th>
                   <th className="pb-2 font-semibold">Email</th>
                   <th className="pb-2 font-semibold">Type</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-50">
+              <tbody className="divide-y divide-neutral-50">
                 {recentContacts.map((contact) => (
                   <tr key={contact.id}>
                     <td className="py-2.5">
                       <Link
                         href={`/contacts/${contact.id}`}
-                        className="font-medium text-slate-800 hover:text-indigo-500"
+                        className="font-medium text-neutral-900 hover:text-blue-600"
                       >
                         {contact.firstName} {contact.lastName}
                       </Link>
                     </td>
-                    <td className="py-2.5 text-slate-500">
+                    <td className="py-2.5 text-neutral-500">
                       {contact.company ?? "-"}
                     </td>
-                    <td className="py-2.5 text-slate-500">
+                    <td className="py-2.5 text-neutral-500">
                       {contact.email ?? "-"}
                     </td>
                     <td className="py-2.5">
                       {contact.client && (
-                        <Badge className="bg-rose-50 text-rose-600 ring-rose-100">
+                        <Badge className="bg-violet-50 text-violet-700">
                           Client
                         </Badge>
                       )}
                       {contact.candidate && (
-                        <Badge className="ml-1 bg-emerald-50 text-emerald-600 ring-emerald-100">
+                        <Badge className="ml-1 bg-emerald-50 text-emerald-700">
                           Candidate
                         </Badge>
                       )}
                       {!contact.client && !contact.candidate && (
-                        <span className="text-slate-400">-</span>
+                        <span className="text-neutral-400">-</span>
                       )}
                     </td>
                   </tr>

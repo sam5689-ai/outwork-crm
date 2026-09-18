@@ -22,26 +22,26 @@ export function ScheduleMeetingForm({ action }: { action: MeetingAction }) {
   }
 
   return (
-    <form action={formAction} className="space-y-3 rounded-lg border border-slate-100 p-3">
+    <form action={formAction} className="space-y-3 rounded-lg border border-neutral-200 p-3">
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <input
           type="text"
           name="title"
           placeholder="Meeting title"
           required
-          className="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+          className="rounded-lg border border-neutral-200 px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
         />
         <input
           type="datetime-local"
           name="startTime"
           required
-          className="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+          className="rounded-lg border border-neutral-200 px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
         />
       </div>
       <select
         name="durationMinutes"
         defaultValue="30"
-        className="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none"
+        className="rounded-lg border border-neutral-200 px-3 py-2 text-sm outline-none"
       >
         <option value="15">15 minutes</option>
         <option value="30">30 minutes</option>
@@ -49,7 +49,7 @@ export function ScheduleMeetingForm({ action }: { action: MeetingAction }) {
       </select>
 
       {state?.error && (
-        <p className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-600">
+        <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">
           {state.error}
         </p>
       )}

@@ -54,13 +54,13 @@ export default async function CandidateDetailPage({
     <div>
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-xl font-bold text-slate-800">
+          <h1 className="text-xl font-semibold tracking-tight text-neutral-900">
             {candidate.contact.firstName} {candidate.contact.lastName}
           </h1>
-          <p className="mt-1 text-sm text-slate-500">
+          <p className="mt-1 text-sm text-neutral-500">
             <Link
               href={`/contacts/${candidate.contact.id}`}
-              className="font-medium text-indigo-500 hover:underline"
+              className="font-medium text-blue-600 hover:underline"
             >
               View contact
             </Link>
@@ -79,7 +79,7 @@ export default async function CandidateDetailPage({
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-1">
-          <h2 className="mb-4 text-sm font-semibold text-slate-800">
+          <h2 className="mb-4 text-sm font-semibold text-neutral-900">
             Profile
           </h2>
           <form action={updateProfileWithId} className="space-y-4">
@@ -106,19 +106,19 @@ export default async function CandidateDetailPage({
         </Card>
 
         <Card className="lg:col-span-2">
-          <h2 className="mb-4 text-sm font-semibold text-slate-800">
+          <h2 className="mb-4 text-sm font-semibold text-neutral-900">
             Job Matches
           </h2>
 
           {availableJobs.length > 0 && (
             <form
               action={proposeMatchWithId}
-              className="mb-4 flex flex-wrap items-center gap-2 rounded-lg border border-slate-100 p-3"
+              className="mb-4 flex flex-wrap items-center gap-2 rounded-lg border border-neutral-200 p-3"
             >
               <select
                 name="jobId"
                 required
-                className="min-w-[220px] flex-1 rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+                className="min-w-[220px] flex-1 rounded-lg border border-neutral-200 px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
               >
                 <option value="">Match to a job...</option>
                 {availableJobs.map((job) => (
@@ -134,7 +134,7 @@ export default async function CandidateDetailPage({
           )}
 
           {candidate.matches.length === 0 ? (
-            <p className="py-4 text-center text-sm text-slate-400">
+            <p className="py-4 text-center text-sm text-neutral-400">
               No job matches yet.
             </p>
           ) : (
@@ -148,16 +148,16 @@ export default async function CandidateDetailPage({
                 return (
                   <li
                     key={match.id}
-                    className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-slate-100 px-3 py-2.5"
+                    className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-neutral-200 px-3 py-2.5"
                   >
                     <div>
                       <Link
                         href={`/clients/${match.job.clientId}`}
-                        className="text-sm font-medium text-slate-700 hover:text-indigo-500"
+                        className="text-sm font-medium text-neutral-700 hover:text-blue-600"
                       >
                         {match.job.client.companyName}
                       </Link>
-                      <p className="text-xs text-slate-400">
+                      <p className="text-xs text-neutral-400">
                         {match.job.title}
                       </p>
                     </div>

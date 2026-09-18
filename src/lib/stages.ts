@@ -17,11 +17,11 @@ export const CLIENT_STAGE_LABELS: Record<ClientStageValue, string> = {
 };
 
 export const CLIENT_STAGE_COLORS: Record<ClientStageValue, string> = {
-  INTERESTED: "bg-sky-50 text-sky-600 ring-sky-100",
-  CANDIDATE_MATCHED: "bg-amber-50 text-amber-600 ring-amber-100",
-  CONTRACT_SIGNED: "bg-indigo-50 text-indigo-600 ring-indigo-100",
-  TRIAL_PASSED: "bg-emerald-50 text-emerald-600 ring-emerald-100",
-  LOST: "bg-slate-100 text-slate-500 ring-slate-200",
+  INTERESTED: "bg-blue-50 text-blue-700",
+  CANDIDATE_MATCHED: "bg-amber-50 text-amber-700",
+  CONTRACT_SIGNED: "bg-violet-50 text-violet-700",
+  TRIAL_PASSED: "bg-emerald-50 text-emerald-700",
+  LOST: "bg-neutral-100 text-neutral-500",
 };
 
 export const CANDIDATE_STAGES = [
@@ -43,11 +43,11 @@ export const CANDIDATE_STAGE_LABELS: Record<CandidateStageValue, string> = {
 };
 
 export const CANDIDATE_STAGE_COLORS: Record<CandidateStageValue, string> = {
-  SOURCED: "bg-slate-100 text-slate-500 ring-slate-200",
-  SUITABLE: "bg-sky-50 text-sky-600 ring-sky-100",
-  MATCHED: "bg-amber-50 text-amber-600 ring-amber-100",
-  ACCEPTED: "bg-emerald-50 text-emerald-600 ring-emerald-100",
-  REJECTED: "bg-rose-50 text-rose-600 ring-rose-100",
+  SOURCED: "bg-neutral-100 text-neutral-500",
+  SUITABLE: "bg-blue-50 text-blue-700",
+  MATCHED: "bg-amber-50 text-amber-700",
+  ACCEPTED: "bg-emerald-50 text-emerald-700",
+  REJECTED: "bg-red-50 text-red-700",
 };
 
 export const JOB_STATUS_LABELS: Record<string, string> = {
@@ -57,9 +57,9 @@ export const JOB_STATUS_LABELS: Record<string, string> = {
 };
 
 export const JOB_STATUS_COLORS: Record<string, string> = {
-  OPEN: "bg-emerald-50 text-emerald-600 ring-emerald-100",
-  ON_HOLD: "bg-amber-50 text-amber-600 ring-amber-100",
-  CLOSED: "bg-slate-100 text-slate-500 ring-slate-200",
+  OPEN: "bg-emerald-50 text-emerald-700",
+  ON_HOLD: "bg-amber-50 text-amber-700",
+  CLOSED: "bg-neutral-100 text-neutral-500",
 };
 
 export const MATCH_STATUS_LABELS: Record<string, string> = {
@@ -69,7 +69,7 @@ export const MATCH_STATUS_LABELS: Record<string, string> = {
 };
 
 export const MATCH_STATUS_COLORS: Record<string, string> = {
-  PROPOSED: "bg-sky-50 text-sky-600 ring-sky-100",
-  ACCEPTED: "bg-emerald-50 text-emerald-600 ring-emerald-100",
-  REJECTED: "bg-rose-50 text-rose-600 ring-rose-100",
+  PROPOSED: "bg-blue-50 text-blue-700",
+  ACCEPTED: "bg-emerald-50 text-emerald-700",
+  REJECTED: "bg-red-50 text-red-700",
 };

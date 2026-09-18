@@ -46,14 +46,14 @@ export default async function ClientDetailPage({
     <div>
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-xl font-bold text-slate-800">
+          <h1 className="text-xl font-semibold tracking-tight text-neutral-900">
             {client.companyName}
           </h1>
-          <p className="mt-1 text-sm text-slate-500">
+          <p className="mt-1 text-sm text-neutral-500">
             Primary contact:{" "}
             <Link
               href={`/contacts/${client.contact.id}`}
-              className="font-medium text-indigo-500 hover:underline"
+              className="font-medium text-blue-600 hover:underline"
             >
               {client.contact.firstName} {client.contact.lastName}
             </Link>
@@ -72,7 +72,7 @@ export default async function ClientDetailPage({
 
       <Card>
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-slate-800">Jobs</h2>
+          <h2 className="text-sm font-semibold text-neutral-900">Jobs</h2>
           <LinkButton href={`/clients/${client.id}/jobs/new`} variant="secondary">
             <Plus className="h-4 w-4" />
             New Job
@@ -80,7 +80,7 @@ export default async function ClientDetailPage({
         </div>
 
         {client.jobs.length === 0 ? (
-          <p className="py-6 text-center text-sm text-slate-400">
+          <p className="py-6 text-center text-sm text-neutral-400">
             No jobs yet for this client.
           </p>
         ) : (
@@ -94,15 +94,15 @@ export default async function ClientDetailPage({
               return (
                 <div
                   key={job.id}
-                  className="rounded-xl border border-slate-100 p-4"
+                  className="rounded-xl border border-neutral-200 p-4"
                 >
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <div>
-                      <p className="font-semibold text-slate-800">
+                      <p className="font-semibold text-neutral-900">
                         {job.title}
                       </p>
                       {job.description && (
-                        <p className="mt-1 text-sm text-slate-500">
+                        <p className="mt-1 text-sm text-neutral-500">
                           {job.description}
                         </p>
                       )}
@@ -123,17 +123,17 @@ export default async function ClientDetailPage({
                     </Badge>
                   </div>
 
-                  <div className="mt-4 border-t border-slate-100 pt-3">
-                    <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
+                  <div className="mt-4 border-t border-neutral-200 pt-3">
+                    <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-400">
                       Candidate Matches
                     </p>
                     {job.matches.length === 0 ? (
-                      <p className="text-sm text-slate-400">
+                      <p className="text-sm text-neutral-400">
                         No candidates matched to this job yet. Match one from
                         the{" "}
                         <Link
                           href="/candidates"
-                          className="text-indigo-500 hover:underline"
+                          className="text-blue-600 hover:underline"
                         >
                           candidates
                         </Link>{" "}
@@ -144,11 +144,11 @@ export default async function ClientDetailPage({
                         {job.matches.map((match) => (
                           <li
                             key={match.id}
-                            className="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2"
+                            className="flex items-center justify-between rounded-lg bg-neutral-50 px-3 py-2"
                           >
                             <Link
                               href={`/candidates/${match.candidate.id}`}
-                              className="text-sm font-medium text-slate-700 hover:text-indigo-500"
+                              className="text-sm font-medium text-neutral-700 hover:text-blue-600"
                             >
                               {match.candidate.contact.firstName}{" "}
                               {match.candidate.contact.lastName}

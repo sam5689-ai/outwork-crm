@@ -42,7 +42,7 @@ export function CreateUserForm() {
       </div>
 
       {state?.error && (
-        <p className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-600">
+        <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">
           {state.error}
         </p>
       )}

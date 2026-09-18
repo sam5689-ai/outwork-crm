@@ -27,10 +27,10 @@ export default async function ClientsPage() {
         {columns.map(({ stage, clients: stageClients }) => (
           <div key={stage} className="w-72 shrink-0">
             <div className="mb-3 flex items-center justify-between px-1">
-              <h2 className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+              <h2 className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
                 {CLIENT_STAGE_LABELS[stage]}
               </h2>
-              <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-500">
+              <span className="rounded-full bg-neutral-200 px-2 py-0.5 text-xs font-semibold text-neutral-500">
                 {stageClients.length}
               </span>
             </div>
@@ -43,18 +43,18 @@ export default async function ClientsPage() {
                 return (
                   <div
                     key={client.id}
-                    className="rounded-xl border border-slate-100 bg-white p-4 shadow-sm"
+                    className="rounded-xl border border-neutral-200 bg-white p-4 shadow-sm"
                   >
                     <Link
                       href={`/clients/${client.id}`}
-                      className="font-semibold text-slate-800 hover:text-indigo-500"
+                      className="font-semibold text-neutral-900 hover:text-blue-600"
                     >
                       {client.companyName}
                     </Link>
-                    <p className="mt-1 text-xs text-slate-400">
+                    <p className="mt-1 text-xs text-neutral-400">
                       {client.contact.firstName} {client.contact.lastName}
                     </p>
-                    <p className="mt-1 text-xs text-slate-400">
+                    <p className="mt-1 text-xs text-neutral-400">
                       {client.jobs.length} job
                       {client.jobs.length === 1 ? "" : "s"}
                     </p>
@@ -74,7 +74,7 @@ export default async function ClientsPage() {
               })}
               {stageClients.length === 0 && (
                 <div
-                  className={`rounded-xl border border-dashed border-slate-200 p-4 text-center text-xs text-slate-400`}
+                  className={`rounded-xl border border-dashed border-neutral-200 p-4 text-center text-xs text-neutral-400`}
                 >
                   No clients {CLIENT_STAGE_LABELS[stage].toLowerCase()}
                 </div>
@@ -85,9 +85,9 @@ export default async function ClientsPage() {
       </div>
 
       {clients.length === 0 && (
-        <p className="mt-6 text-sm text-slate-400">
+        <p className="mt-6 text-sm text-neutral-400">
           No clients yet. Convert a contact into a client to get started, or{" "}
-          <Link href="/contacts/new" className="text-indigo-500 hover:underline">
+          <Link href="/contacts/new" className="text-blue-600 hover:underline">
             add a new contact
           </Link>
           .

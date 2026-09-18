@@ -27,7 +27,7 @@ export function StageSelect({
         defaultValue={defaultValue}
         disabled={isPending}
         onChange={() => formRef.current?.requestSubmit()}
-        className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-600 outline-none transition focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 disabled:opacity-60"
+        className="rounded-lg border border-neutral-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-neutral-600 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:opacity-60"
       >
         {options.map((option) => (
           <option key={option.value} value={option.value}>

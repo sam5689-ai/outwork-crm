@@ -20,30 +20,30 @@ export default async function JobsPage() {
 
       <Card className="p-0">
         {jobs.length === 0 ? (
-          <p className="p-8 text-center text-sm text-slate-400">
+          <p className="p-8 text-center text-sm text-neutral-400">
             No jobs yet. Open a job from a client&apos;s page.
           </p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[640px] text-left text-sm">
               <thead>
-                <tr className="border-b border-slate-100 text-xs uppercase tracking-wide text-slate-400">
+                <tr className="border-b border-neutral-200 text-xs uppercase tracking-wide text-neutral-400">
                   <th className="px-4 py-3 font-semibold">Job</th>
                   <th className="px-4 py-3 font-semibold">Client</th>
                   <th className="px-4 py-3 font-semibold">Status</th>
                   <th className="px-4 py-3 font-semibold">Matches</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-50">
+              <tbody className="divide-y divide-neutral-50">
                 {jobs.map((job) => (
-                  <tr key={job.id} className="hover:bg-slate-50/60">
-                    <td className="px-4 py-3 font-medium text-slate-800">
+                  <tr key={job.id} className="hover:bg-neutral-50/60">
+                    <td className="px-4 py-3 font-medium text-neutral-900">
                       {job.title}
                     </td>
                     <td className="px-4 py-3">
                       <Link
                         href={`/clients/${job.clientId}`}
-                        className="text-slate-500 hover:text-indigo-500"
+                        className="text-neutral-500 hover:text-blue-600"
                       >
                         {job.client.companyName}
                       </Link>
@@ -53,7 +53,7 @@ export default async function JobsPage() {
                         {JOB_STATUS_LABELS[job.status]}
                       </Badge>
                     </td>
-                    <td className="px-4 py-3 text-slate-500">
+                    <td className="px-4 py-3 text-neutral-500">
                       {job.matches.length}
                     </td>
                   </tr>

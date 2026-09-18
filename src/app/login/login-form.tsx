@@ -15,7 +15,7 @@ export function LoginForm({ callbackUrl }: { callbackUrl: string }) {
       <div>
         <label
           htmlFor="username"
-          className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500"
+          className="mb-1.5 block text-sm font-medium text-neutral-700"
         >
           Username
         </label>
@@ -25,14 +25,14 @@ export function LoginForm({ callbackUrl }: { callbackUrl: string }) {
           type="text"
           autoComplete="username"
           required
-          className="w-full rounded-lg border border-slate-200 px-4 py-2.5 text-sm text-slate-800 shadow-sm outline-none transition focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+          className="w-full rounded-lg border border-neutral-200 px-4 py-2.5 text-sm text-neutral-900 shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
           placeholder="admin"
         />
       </div>
       <div>
         <label
           htmlFor="password"
-          className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500"
+          className="mb-1.5 block text-sm font-medium text-neutral-700"
         >
           Password
         </label>
@@ -42,13 +42,13 @@ export function LoginForm({ callbackUrl }: { callbackUrl: string }) {
           type="password"
           autoComplete="current-password"
           required
-          className="w-full rounded-lg border border-slate-200 px-4 py-2.5 text-sm text-slate-800 shadow-sm outline-none transition focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+          className="w-full rounded-lg border border-neutral-200 px-4 py-2.5 text-sm text-neutral-900 shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
           placeholder="••••••••"
         />
       </div>
 
       {errorMessage && (
-        <p className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-600">
+        <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">
           {errorMessage}
         </p>
       )}
@@ -56,7 +56,7 @@ export function LoginForm({ callbackUrl }: { callbackUrl: string }) {
       <button
         type="submit"
         disabled={isPending}
-        className="w-full rounded-lg bg-gradient-to-r from-indigo-500 to-violet-500 px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-indigo-200 transition hover:opacity-90 disabled:opacity-60"
+        className="w-full rounded-lg bg-neutral-900 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-neutral-700 disabled:opacity-60"
       >
         {isPending ? "Signing in..." : "Sign in"}
       </button>

@@ -55,10 +55,10 @@ export default async function ContactDetailPage({
     <div>
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-xl font-bold text-slate-800">
+          <h1 className="text-xl font-semibold tracking-tight text-neutral-900">
             {contact.firstName} {contact.lastName}
           </h1>
-          <p className="mt-1 text-sm text-slate-500">
+          <p className="mt-1 text-sm text-neutral-500">
             Added by {contact.owner.name} &middot; Owner
           </p>
         </div>
@@ -77,51 +77,51 @@ export default async function ContactDetailPage({
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-1">
           <Card>
-            <h2 className="mb-4 text-sm font-semibold text-slate-800">
+            <h2 className="mb-4 text-sm font-semibold text-neutral-900">
               Contact Info
             </h2>
             <div className="space-y-3 text-sm">
-              <div className="flex items-center gap-2 text-slate-600">
-                <Mail className="h-4 w-4 text-slate-400" />
+              <div className="flex items-center gap-2 text-neutral-600">
+                <Mail className="h-4 w-4 text-neutral-400" />
                 {contact.email ?? (
-                  <span className="text-slate-400">No email</span>
+                  <span className="text-neutral-400">No email</span>
                 )}
               </div>
-              <div className="flex items-center gap-2 text-slate-600">
-                <Phone className="h-4 w-4 text-slate-400" />
+              <div className="flex items-center gap-2 text-neutral-600">
+                <Phone className="h-4 w-4 text-neutral-400" />
                 {contact.phone ?? (
-                  <span className="text-slate-400">No phone</span>
+                  <span className="text-neutral-400">No phone</span>
                 )}
               </div>
-              <div className="flex items-center gap-2 text-slate-600">
-                <Building2 className="h-4 w-4 text-slate-400" />
+              <div className="flex items-center gap-2 text-neutral-600">
+                <Building2 className="h-4 w-4 text-neutral-400" />
                 {contact.company ?? (
-                  <span className="text-slate-400">No company</span>
+                  <span className="text-neutral-400">No company</span>
                 )}
               </div>
             </div>
             {contact.notes && (
-              <p className="mt-4 whitespace-pre-wrap border-t border-slate-100 pt-4 text-sm text-slate-600">
+              <p className="mt-4 whitespace-pre-wrap border-t border-neutral-200 pt-4 text-sm text-neutral-600">
                 {contact.notes}
               </p>
             )}
           </Card>
 
           <Card>
-            <h2 className="mb-4 text-sm font-semibold text-slate-800">
+            <h2 className="mb-4 text-sm font-semibold text-neutral-900">
               Pipeline
             </h2>
             <div className="space-y-4">
               <div>
-                <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-slate-400">
+                <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-neutral-400">
                   Client
                 </p>
                 {contact.client ? (
                   <Link
                     href={`/clients/${contact.client.id}`}
-                    className="flex items-center justify-between rounded-lg border border-slate-100 px-3 py-2 hover:border-indigo-200"
+                    className="flex items-center justify-between rounded-lg border border-neutral-200 px-3 py-2 hover:border-blue-300"
                   >
-                    <span className="text-sm font-medium text-slate-700">
+                    <span className="text-sm font-medium text-neutral-700">
                       {contact.client.companyName}
                     </span>
                     <Badge className={CLIENT_STAGE_COLORS[contact.client.stage]}>
@@ -135,7 +135,7 @@ export default async function ContactDetailPage({
                       name="companyName"
                       placeholder="Company name"
                       defaultValue={contact.company ?? ""}
-                      className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+                      className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                     />
                     <Button type="submit" variant="secondary" className="shrink-0">
                       Convert
@@ -145,15 +145,15 @@ export default async function ContactDetailPage({
               </div>
 
               <div>
-                <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-slate-400">
+                <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-neutral-400">
                   Candidate
                 </p>
                 {contact.candidate ? (
                   <Link
                     href={`/candidates/${contact.candidate.id}`}
-                    className="flex items-center justify-between rounded-lg border border-slate-100 px-3 py-2 hover:border-indigo-200"
+                    className="flex items-center justify-between rounded-lg border border-neutral-200 px-3 py-2 hover:border-blue-300"
                   >
-                    <span className="text-sm font-medium text-slate-700">
+                    <span className="text-sm font-medium text-neutral-700">
                       Candidate profile
                     </span>
                     <Badge
@@ -176,7 +176,7 @@ export default async function ContactDetailPage({
 
         <div className="space-y-6 lg:col-span-2">
           <Card>
-            <h2 className="mb-4 text-sm font-semibold text-slate-800">
+            <h2 className="mb-4 text-sm font-semibold text-neutral-900">
               Activity
             </h2>
             <form action={addNoteWithId} className="mb-4 flex gap-2">
@@ -184,14 +184,14 @@ export default async function ContactDetailPage({
                 type="text"
                 name="body"
                 placeholder="Add a note..."
-                className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+                className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
               />
               <Button type="submit" variant="secondary" className="shrink-0">
                 Add
               </Button>
             </form>
             {contact.activities.length === 0 ? (
-              <p className="py-4 text-center text-sm text-slate-400">
+              <p className="py-4 text-center text-sm text-neutral-400">
                 No activity yet.
               </p>
             ) : (
@@ -199,10 +199,10 @@ export default async function ContactDetailPage({
                 {contact.activities.map((activity) => (
                   <li
                     key={activity.id}
-                    className="border-l-2 border-indigo-100 pl-3 text-sm"
+                    className="border-l-2 border-blue-100 pl-3 text-sm"
                   >
-                    <p className="text-slate-700">{activity.body}</p>
-                    <p className="mt-0.5 text-xs text-slate-400">
+                    <p className="text-neutral-700">{activity.body}</p>
+                    <p className="mt-0.5 text-xs text-neutral-400">
                       {activity.author.name} &middot;{" "}
                       {activity.createdAt.toLocaleString()}
                     </p>
@@ -214,36 +214,36 @@ export default async function ContactDetailPage({
 
           <Card>
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-slate-800">
-                <Mail className="mr-2 inline h-4 w-4 text-slate-400" />
+              <h2 className="text-sm font-semibold text-neutral-900">
+                <Mail className="mr-2 inline h-4 w-4 text-neutral-400" />
                 Linked Emails
               </h2>
               <Link
                 href="/settings/integrations"
-                className="text-xs font-semibold text-indigo-500 hover:underline"
+                className="text-xs font-semibold text-blue-600 hover:underline"
               >
                 Connect Gmail
               </Link>
             </div>
             {contact.emails.length === 0 ? (
-              <p className="py-4 text-center text-sm text-slate-400">
+              <p className="py-4 text-center text-sm text-neutral-400">
                 No emails linked yet. Connect your Google account in Settings
                 to automatically sync emails with this contact.
               </p>
             ) : (
-              <ul className="divide-y divide-slate-50">
+              <ul className="divide-y divide-neutral-50">
                 {contact.emails.map((email) => (
                   <li key={email.id} className="py-3">
                     <div className="flex items-center justify-between">
-                      <p className="text-sm font-medium text-slate-700">
+                      <p className="text-sm font-medium text-neutral-700">
                         {email.subject}
                       </p>
-                      <span className="text-xs text-slate-400">
+                      <span className="text-xs text-neutral-400">
                         {email.sentAt.toLocaleDateString()}
                       </span>
                     </div>
                     {email.snippet && (
-                      <p className="mt-1 text-xs text-slate-500">
+                      <p className="mt-1 text-xs text-neutral-500">
                         {email.snippet}
                       </p>
                     )}
@@ -255,8 +255,8 @@ export default async function ContactDetailPage({
 
           <Card>
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-slate-800">
-                <Video className="mr-2 inline h-4 w-4 text-slate-400" />
+              <h2 className="text-sm font-semibold text-neutral-900">
+                <Video className="mr-2 inline h-4 w-4 text-neutral-400" />
                 Meetings
               </h2>
             </div>
@@ -264,25 +264,25 @@ export default async function ContactDetailPage({
               <ScheduleMeetingForm action={scheduleMeetingWithId} />
             </div>
             {contact.meetings.length === 0 ? (
-              <p className="py-4 text-center text-sm text-slate-400">
+              <p className="py-4 text-center text-sm text-neutral-400">
                 No meetings scheduled yet. Connect Google in{" "}
                 <Link
                   href="/settings/integrations"
-                  className="text-indigo-500 hover:underline"
+                  className="text-blue-600 hover:underline"
                 >
                   Settings
                 </Link>{" "}
                 to create Google Meet events.
               </p>
             ) : (
-              <ul className="divide-y divide-slate-50">
+              <ul className="divide-y divide-neutral-50">
                 {contact.meetings.map((meeting) => (
                   <li key={meeting.id} className="py-3">
                     <div className="flex items-center justify-between">
-                      <p className="text-sm font-medium text-slate-700">
+                      <p className="text-sm font-medium text-neutral-700">
                         {meeting.title}
                       </p>
-                      <span className="text-xs text-slate-400">
+                      <span className="text-xs text-neutral-400">
                         {meeting.scheduledStart.toLocaleString()}
                       </span>
                     </div>
@@ -291,7 +291,7 @@ export default async function ContactDetailPage({
                         href={meeting.meetLink}
                         target="_blank"
                         rel="noreferrer"
-                        className="mt-1 inline-block text-xs font-medium text-indigo-500 hover:underline"
+                        className="mt-1 inline-block text-xs font-medium text-blue-600 hover:underline"
                       >
                         Join Google Meet
                       </a>

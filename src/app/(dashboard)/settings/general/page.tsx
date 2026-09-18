@@ -18,8 +18,8 @@ export default async function GeneralSettingsPage() {
 
   return (
     <Card className="max-w-2xl">
-      <h2 className="mb-1 text-sm font-semibold text-slate-800">Branding</h2>
-      <p className="mb-4 text-sm text-slate-500">
+      <h2 className="mb-1 text-sm font-semibold text-neutral-900">Branding</h2>
+      <p className="mb-4 text-sm text-neutral-500">
         Customize how your workspace name appears across the app.
       </p>
       <BrandingForm

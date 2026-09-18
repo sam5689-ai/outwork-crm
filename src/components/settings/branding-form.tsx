@@ -30,14 +30,14 @@ export function BrandingForm({
             name="primaryColor"
             type="color"
             defaultValue={primaryColor}
-            className="h-10 w-14 cursor-pointer rounded-lg border border-slate-200"
+            className="h-10 w-14 cursor-pointer rounded-lg border border-neutral-200"
           />
-          <span className="text-sm text-slate-500">{primaryColor}</span>
+          <span className="text-sm text-neutral-500">{primaryColor}</span>
         </div>
       </FormField>
 
       {state?.error && (
-        <p className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-600">
+        <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">
           {state.error}
         </p>
       )}

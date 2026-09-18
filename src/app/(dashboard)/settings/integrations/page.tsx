@@ -30,15 +30,26 @@ export default async function IntegrationsSettingsPage({
   return (
     <div className="space-y-6">
       {!configured && (
-        <Card className="border-amber-100 bg-amber-50">
+        <Card>
           <div className="flex gap-3">
             <AlertTriangle className="h-5 w-5 shrink-0 text-amber-500" />
-            <div className="text-sm text-amber-700">
-              <p className="font-semibold">Google integration not configured</p>
+            <div className="text-sm text-neutral-600">
+              <p className="font-medium text-neutral-900">
+                Google integration not configured
+              </p>
               <p className="mt-1">
-                Set <code className="rounded bg-amber-100 px-1">GOOGLE_CLIENT_ID</code>,{" "}
-                <code className="rounded bg-amber-100 px-1">GOOGLE_CLIENT_SECRET</code> and{" "}
-                <code className="rounded bg-amber-100 px-1">GOOGLE_REDIRECT_URI</code>{" "}
+                Set{" "}
+                <code className="rounded bg-neutral-100 px-1 py-0.5 text-xs">
+                  GOOGLE_CLIENT_ID
+                </code>
+                ,{" "}
+                <code className="rounded bg-neutral-100 px-1 py-0.5 text-xs">
+                  GOOGLE_CLIENT_SECRET
+                </code>{" "}
+                and{" "}
+                <code className="rounded bg-neutral-100 px-1 py-0.5 text-xs">
+                  GOOGLE_REDIRECT_URI
+                </code>{" "}
                 in your environment to enable Gmail and Google Meet syncing.
                 See the README for setup instructions.
               </p>
@@ -48,22 +59,22 @@ export default async function IntegrationsSettingsPage({
       )}
 
       {error && ERROR_MESSAGES[error] && (
-        <Card className="border-rose-100 bg-rose-50">
-          <p className="text-sm text-rose-600">{ERROR_MESSAGES[error]}</p>
+        <Card>
+          <p className="text-sm text-red-600">{ERROR_MESSAGES[error]}</p>
         </Card>
       )}
 
       <Card>
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-violet-500 text-white">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
               <Mail className="h-5 w-5" />
             </div>
             <div>
-              <h2 className="text-sm font-semibold text-slate-800">
+              <h2 className="text-sm font-semibold text-neutral-900">
                 Google Account (Gmail &amp; Meet)
               </h2>
-              <p className="mt-1 max-w-md text-sm text-slate-500">
+              <p className="mt-1 max-w-md text-sm text-neutral-500">
                 Connect your Google account to link emails to contacts and
                 create Google Meet meetings directly from the CRM.
               </p>
@@ -95,14 +106,14 @@ export default async function IntegrationsSettingsPage({
 
       <Card>
         <div className="flex gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-400 text-white">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
             <Video className="h-5 w-5" />
           </div>
           <div>
-            <h2 className="text-sm font-semibold text-slate-800">
+            <h2 className="text-sm font-semibold text-neutral-900">
               Scheduling Google Meet calls
             </h2>
-            <p className="mt-1 max-w-md text-sm text-slate-500">
+            <p className="mt-1 max-w-md text-sm text-neutral-500">
               Once connected, open any contact and use &quot;Schedule Google
               Meet&quot; to create a calendar invite with a Meet link
               that&apos;s automatically saved to that contact&apos;s

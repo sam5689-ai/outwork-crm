@@ -21,12 +21,12 @@ export default async function SettingsLayout({
         title="Settings"
         description="Manage your workspace, team and integrations"
       />
-      <div className="mb-6 flex gap-1 border-b border-slate-100">
+      <div className="mb-6 flex gap-1 border-b border-neutral-200">
         {tabs.map((tab) => (
           <Link
             key={tab.href}
             href={tab.href}
-            className="px-4 py-2.5 text-sm font-medium text-slate-500 hover:text-indigo-500"
+            className="px-4 py-2.5 text-sm font-medium text-neutral-500 hover:text-blue-600"
           >
             {tab.label}
           </Link>

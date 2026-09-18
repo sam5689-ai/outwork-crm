@@ -22,7 +22,7 @@ export function DeleteButton({
     >
       <button
         type="submit"
-        className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold text-rose-500 transition hover:bg-rose-50"
+        className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold text-red-500 transition hover:bg-red-50"
       >
         <Trash2 className="h-4 w-4" />
         {label}
