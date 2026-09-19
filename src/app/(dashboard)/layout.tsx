@@ -1,4 +1,5 @@
 import { requireUser } from "@/lib/session";
+import { getBranding } from "@/lib/branding";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 
 export default async function DashboardLayout({
@@ -6,10 +7,15 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const user = await requireUser();
+  const [user, branding] = await Promise.all([requireUser(), getBranding()]);
 
   return (
-    <DashboardShell name={user.name ?? user.email ?? "User"} role={user.role}>
+    <DashboardShell
+      name={user.name ?? user.email ?? "User"}
+      role={user.role}
+      companyName={branding.companyName}
+      logoUrl={branding.logoUrl}
+    >
       {children}
     </DashboardShell>
   );

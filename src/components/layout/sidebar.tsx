@@ -55,9 +55,13 @@ function NavLink({
 export function Sidebar({
   mobileOpen = false,
   onClose,
+  companyName = "Outwork CRM",
+  logoUrl,
 }: {
   mobileOpen?: boolean;
   onClose?: () => void;
+  companyName?: string;
+  logoUrl?: string | null;
 }) {
   const pathname = usePathname();
 
@@ -77,11 +81,20 @@ export function Sidebar({
       >
         <div className="mb-8 flex items-center justify-between px-2">
           <Link href="/dashboard" className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-neutral-900 text-sm font-semibold text-white">
-              O
-            </div>
-            <span className="text-[15px] font-semibold tracking-tight text-neutral-900">
-              Outwork CRM
+            {logoUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={logoUrl}
+                alt={companyName}
+                className="h-8 w-8 shrink-0 rounded-lg object-contain"
+              />
+            ) : (
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-neutral-900 text-sm font-semibold text-white">
+                {companyName.charAt(0).toUpperCase() || "O"}
+              </div>
+            )}
+            <span className="truncate text-[15px] font-semibold tracking-tight text-neutral-900">
+              {companyName}
             </span>
           </Link>
           <button

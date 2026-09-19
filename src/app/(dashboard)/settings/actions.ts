@@ -8,6 +8,15 @@ import { requireAdmin, requireUser } from "@/lib/session";
 
 export type SettingsFormState = { error?: string; success?: string } | undefined;
 
+const MAX_LOGO_BYTES = 1_000_000; // 1MB
+const ALLOWED_LOGO_TYPES = [
+  "image/png",
+  "image/jpeg",
+  "image/webp",
+  "image/svg+xml",
+  "image/gif",
+];
+
 export async function updateBranding(
   _prevState: SettingsFormState,
   formData: FormData
@@ -16,21 +25,45 @@ export async function updateBranding(
 
   const companyName = formData.get("companyName")?.toString().trim();
   const primaryColor = formData.get("primaryColor")?.toString().trim();
+  const removeLogo = formData.get("removeLogo") === "on";
+  const logoFile = formData.get("logo");
 
   if (!companyName) {
     return { error: "Company name is required." };
   }
 
+  const existing = await prisma.setting.findUnique({
+    where: { key: "branding" },
+  });
+  const existingValue = (existing?.value as { logoUrl?: string | null }) ?? {};
+  let logoUrl: string | null = existingValue.logoUrl ?? null;
+
+  if (removeLogo) {
+    logoUrl = null;
+  } else if (logoFile instanceof File && logoFile.size > 0) {
+    if (!ALLOWED_LOGO_TYPES.includes(logoFile.type)) {
+      return { error: "Logo must be a PNG, JPEG, WEBP, GIF or SVG image." };
+    }
+    if (logoFile.size > MAX_LOGO_BYTES) {
+      return { error: "Logo must be smaller than 1MB." };
+    }
+    const buffer = Buffer.from(await logoFile.arrayBuffer());
+    logoUrl = `data:${logoFile.type};base64,${buffer.toString("base64")}`;
+  }
+
   await prisma.setting.upsert({
     where: { key: "branding" },
-    update: { value: { companyName, primaryColor: primaryColor || "#5e72e4" } },
+    update: {
+      value: { companyName, primaryColor: primaryColor || "#5e72e4", logoUrl },
+    },
     create: {
       key: "branding",
-      value: { companyName, primaryColor: primaryColor || "#5e72e4" },
+      value: { companyName, primaryColor: primaryColor || "#5e72e4", logoUrl },
     },
   });
 
   revalidatePath("/settings/general");
+  revalidatePath("/", "layout");
   return { success: "Branding updated." };
 }
 
