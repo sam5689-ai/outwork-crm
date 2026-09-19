@@ -43,7 +43,7 @@ export default async function ClientsPage() {
                 return (
                   <div
                     key={client.id}
-                    className="rounded-xl border border-neutral-200 bg-white p-4 shadow-sm"
+                    className="rounded-xl border border-neutral-200 bg-white p-4 shadow-sm transition-colors hover:border-neutral-300"
                   >
                     <Link
                       href={`/clients/${client.id}`}

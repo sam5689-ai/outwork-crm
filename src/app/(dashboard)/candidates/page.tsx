@@ -43,7 +43,7 @@ export default async function CandidatesPage() {
                 return (
                   <div
                     key={candidate.id}
-                    className="rounded-xl border border-neutral-200 bg-white p-4 shadow-sm"
+                    className="rounded-xl border border-neutral-200 bg-white p-4 shadow-sm transition-colors hover:border-neutral-300"
                   >
                     <Link
                       href={`/candidates/${candidate.id}`}

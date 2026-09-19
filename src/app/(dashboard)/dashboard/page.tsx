@@ -217,7 +217,7 @@ export default async function DashboardPage() {
               </thead>
               <tbody className="divide-y divide-neutral-50">
                 {recentContacts.map((contact) => (
-                  <tr key={contact.id}>
+                  <tr key={contact.id} className="hover:bg-neutral-50/60">
                     <td className="py-2.5">
                       <Link
                         href={`/contacts/${contact.id}`}

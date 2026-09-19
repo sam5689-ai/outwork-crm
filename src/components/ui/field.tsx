@@ -33,7 +33,16 @@ export function Textarea(
 }
 
 export function Select(props: React.SelectHTMLAttributes<HTMLSelectElement>) {
-  return <select {...props} className={clsx(fieldClass, props.className)} />;
+  return (
+    <select
+      {...props}
+      className={clsx(
+        fieldClass,
+        "cursor-pointer hover:border-neutral-300",
+        props.className
+      )}
+    />
+  );
 }
 
 export function FormField({

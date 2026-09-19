@@ -41,7 +41,7 @@ export function ScheduleMeetingForm({ action }: { action: MeetingAction }) {
       <select
         name="durationMinutes"
         defaultValue="30"
-        className="rounded-lg border border-neutral-200 px-3 py-2 text-sm outline-none"
+        className="cursor-pointer rounded-lg border border-neutral-200 px-3 py-2 text-sm outline-none transition hover:border-neutral-300"
       >
         <option value="15">15 minutes</option>
         <option value="30">30 minutes</option>
