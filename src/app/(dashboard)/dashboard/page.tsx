@@ -3,6 +3,7 @@ import { Contact2, Building2, UserSquare2, Briefcase } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { Card } from "@/components/ui/card";
 import { StatCard } from "@/components/ui/stat-card";
+import { ReportCard } from "@/components/ui/report-card";
 import { Badge } from "@/components/ui/badge";
 import { PageHeader } from "@/components/ui/page-header";
 import {
@@ -15,6 +16,12 @@ import {
 } from "@/lib/stages";
 
 export default async function DashboardPage() {
+  const now = new Date();
+  const startOfMonth = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)
+  );
+  const startOfYear = new Date(Date.UTC(now.getUTCFullYear(), 0, 1));
+
   const [
     contactCount,
     clientCount,
@@ -23,6 +30,12 @@ export default async function DashboardPage() {
     clientsByStage,
     candidatesByStage,
     recentContacts,
+    dealsWonMonth,
+    dealsWonYear,
+    dealsLostMonth,
+    dealsLostYear,
+    newClientsMonth,
+    newClientsYear,
   ] = await Promise.all([
     prisma.contact.count(),
     prisma.client.count(),
@@ -35,6 +48,20 @@ export default async function DashboardPage() {
       take: 5,
       include: { client: true, candidate: true },
     }),
+    prisma.client.count({
+      where: { stage: "TRIAL_PASSED", updatedAt: { gte: startOfMonth } },
+    }),
+    prisma.client.count({
+      where: { stage: "TRIAL_PASSED", updatedAt: { gte: startOfYear } },
+    }),
+    prisma.client.count({
+      where: { stage: "LOST", updatedAt: { gte: startOfMonth } },
+    }),
+    prisma.client.count({
+      where: { stage: "LOST", updatedAt: { gte: startOfYear } },
+    }),
+    prisma.client.count({ where: { createdAt: { gte: startOfMonth } } }),
+    prisma.client.count({ where: { createdAt: { gte: startOfYear } } }),
   ]);
 
   const clientStageCounts = Object.fromEntries(
@@ -76,6 +103,31 @@ export default async function DashboardPage() {
           icon={Briefcase}
           color="amber"
         />
+      </div>
+
+      <div className="mt-6">
+        <h2 className="mb-3 text-sm font-semibold text-neutral-900">
+          Reporting
+        </h2>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <ReportCard
+            title="Deals Won"
+            thisMonth={dealsWonMonth}
+            yearToDate={dealsWonYear}
+            tone="positive"
+          />
+          <ReportCard
+            title="Deals Lost"
+            thisMonth={dealsLostMonth}
+            yearToDate={dealsLostYear}
+            tone="negative"
+          />
+          <ReportCard
+            title="New Clients"
+            thisMonth={newClientsMonth}
+            yearToDate={newClientsYear}
+          />
+        </div>
       </div>
 
       <div className="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-2">
