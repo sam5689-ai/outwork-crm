@@ -23,11 +23,12 @@ export function Topbar({
     .toUpperCase();
 
   return (
-    <header className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-neutral-200 bg-white/80 px-4 py-3 backdrop-blur lg:px-8">
+    <header className="sticky top-0 z-10 flex items-center justify-between gap-3 bg-canvas/85 px-4 py-4 backdrop-blur lg:px-8">
       <button
         type="button"
         onClick={onMenuClick}
-        className="rounded-lg p-2 text-neutral-500 hover:bg-neutral-50 lg:hidden"
+        aria-label="Open menu"
+        className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-neutral-700 shadow-sm lg:hidden"
       >
         <Menu className="h-5 w-5" />
       </button>
@@ -37,7 +38,7 @@ export function Topbar({
           onClick={onToggleSidebar}
           title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
           aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-          className="hidden rounded-lg p-2 text-neutral-500 hover:bg-neutral-50 hover:text-neutral-900 lg:inline-flex"
+          className="hidden h-12 w-12 items-center justify-center rounded-full bg-white text-neutral-600 shadow-sm transition-colors hover:text-ink lg:inline-flex"
         >
           {sidebarCollapsed ? (
             <PanelLeftOpen className="h-5 w-5" />
@@ -49,16 +50,14 @@ export function Topbar({
 
       <GlobalSearch />
 
-      <div className="flex items-center gap-3 sm:ml-auto">
-        <div className="flex items-center gap-2 rounded-lg px-2 py-1.5">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-neutral-900 text-xs font-semibold text-white">
+      <div className="flex items-center gap-2 sm:ml-auto">
+        <div className="flex items-center gap-3 rounded-full bg-white py-1.5 pl-1.5 pr-4 shadow-sm">
+          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-ink font-display text-xs font-semibold text-white">
             {initials || "U"}
           </div>
           <div className="hidden text-left sm:block">
-            <p className="text-sm font-medium leading-tight text-neutral-900">
-              {name}
-            </p>
-            <p className="text-xs leading-tight text-neutral-400 capitalize">
+            <p className="text-sm font-bold leading-tight text-ink">{name}</p>
+            <p className="text-xs leading-tight text-neutral-500 capitalize">
               {role.toLowerCase()}
             </p>
           </div>

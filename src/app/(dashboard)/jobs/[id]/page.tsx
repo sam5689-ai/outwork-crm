@@ -141,7 +141,7 @@ export default async function JobDetailPage({
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-1">
-          <h2 className="mb-4 text-sm font-semibold text-neutral-900">
+          <h2 className="mb-4 font-display text-base font-semibold text-ink">
             Role Details
           </h2>
           <div className="space-y-4 text-sm">
@@ -171,7 +171,7 @@ export default async function JobDetailPage({
         </Card>
 
         <Card className="lg:col-span-2">
-          <h2 className="mb-4 text-sm font-semibold text-neutral-900">
+          <h2 className="mb-4 font-display text-base font-semibold text-ink">
             Candidate Matches
           </h2>
           {job.matches.length === 0 ? (

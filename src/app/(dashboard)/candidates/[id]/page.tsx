@@ -103,7 +103,7 @@ export default async function CandidateDetailPage({
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-1">
-          <h2 className="mb-4 text-sm font-semibold text-neutral-900">
+          <h2 className="mb-4 font-display text-base font-semibold text-ink">
             Profile
           </h2>
           <form action={updateProfileWithId} className="space-y-5">
@@ -254,7 +254,7 @@ export default async function CandidateDetailPage({
         </Card>
 
         <Card className="lg:col-span-2">
-          <h2 className="mb-4 text-sm font-semibold text-neutral-900">
+          <h2 className="mb-4 font-display text-base font-semibold text-ink">
             Job Matches
           </h2>
 

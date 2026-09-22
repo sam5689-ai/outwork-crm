@@ -69,7 +69,7 @@ export function QuickMatchDrawer({
     <div className="fixed inset-0 z-50 flex justify-end bg-neutral-900/20">
       <div className="h-full w-full max-w-md overflow-y-auto bg-white shadow-xl">
         <div className="sticky top-0 flex items-center justify-between border-b border-neutral-200 bg-white px-5 py-4">
-          <h2 className="text-sm font-semibold text-neutral-900">
+          <h2 className="font-display text-base font-semibold text-ink">
             Quick-Match Candidate
           </h2>
           <button

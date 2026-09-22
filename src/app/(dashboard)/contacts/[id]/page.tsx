@@ -127,7 +127,7 @@ export default async function ContactDetailPage({
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-1">
           <Card>
-            <h2 className="mb-4 text-sm font-semibold text-neutral-900">
+            <h2 className="mb-4 font-display text-base font-semibold text-ink">
               Contact Info
             </h2>
             <div className="space-y-3 text-sm">
@@ -158,7 +158,7 @@ export default async function ContactDetailPage({
           </Card>
 
           <Card>
-            <h2 className="mb-4 text-sm font-semibold text-neutral-900">
+            <h2 className="mb-4 font-display text-base font-semibold text-ink">
               Pipeline
             </h2>
             <div className="space-y-4">
@@ -226,7 +226,7 @@ export default async function ContactDetailPage({
 
         <div className="space-y-6 lg:col-span-2">
           <Card>
-            <h2 className="mb-4 text-sm font-semibold text-neutral-900">
+            <h2 className="mb-4 font-display text-base font-semibold text-ink">
               Activity
             </h2>
             <form action={addNoteWithId} className="mb-4 flex gap-2">
@@ -264,7 +264,7 @@ export default async function ContactDetailPage({
 
           <Card>
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-neutral-900">
+              <h2 className="font-display text-base font-semibold text-ink">
                 <Mail className="mr-2 inline h-4 w-4 text-neutral-400" />
                 Linked Emails
               </h2>
@@ -340,7 +340,7 @@ export default async function ContactDetailPage({
 
           <Card>
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-neutral-900">
+              <h2 className="font-display text-base font-semibold text-ink">
                 <Video className="mr-2 inline h-4 w-4 text-neutral-400" />
                 Meetings
               </h2>

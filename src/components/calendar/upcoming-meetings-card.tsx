@@ -30,7 +30,7 @@ export async function UpcomingMeetingsCard({
   return (
     <Card>
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-neutral-900">
+        <h2 className="font-display text-base font-semibold text-ink">
           <CalendarDays className="mr-2 inline h-4 w-4 text-neutral-400" />
           Upcoming Meetings
         </h2>

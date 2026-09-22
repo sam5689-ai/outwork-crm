@@ -46,7 +46,7 @@ export function DashboardShell({
       <div
         className={clsx(
           "flex min-h-screen flex-col transition-[padding] duration-200",
-          collapsed ? "lg:pl-16" : "lg:pl-64"
+          collapsed ? "lg:pl-[96px]" : "lg:pl-[252px]"
         )}
       >
         <Topbar

@@ -43,7 +43,7 @@ export default async function CandidatesPage() {
               <h2 className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
                 {CANDIDATE_STAGE_LABELS[stage]}
               </h2>
-              <span className="rounded-full bg-neutral-200 px-2 py-0.5 text-xs font-semibold text-neutral-500">
+              <span className="rounded-full bg-white px-2.5 py-0.5 text-xs font-bold text-ink shadow-sm">
                 {stageCandidates.length}
               </span>
             </div>
@@ -56,12 +56,12 @@ export default async function CandidatesPage() {
                 return (
                   <div
                     key={candidate.id}
-                    className="rounded-xl border border-neutral-200 bg-white p-4 shadow-sm transition-colors hover:border-neutral-300"
+                    className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-transparent transition hover:ring-blue-200"
                   >
                     <div className="flex items-center justify-between gap-2">
                       <Link
                         href={`/candidates/${candidate.id}`}
-                        className="font-semibold text-neutral-900 hover:text-blue-600"
+                        className="font-bold text-ink hover:text-accent"
                       >
                         {candidate.contact.firstName} {candidate.contact.lastName}
                       </Link>
@@ -98,7 +98,7 @@ export default async function CandidatesPage() {
                 );
               })}
               {stageCandidates.length === 0 && (
-                <div className="rounded-xl border border-dashed border-neutral-200 p-4 text-center text-xs text-neutral-400">
+                <div className="rounded-3xl border-2 border-dashed border-neutral-300 p-4 text-center text-xs text-neutral-400">
                   No candidates {CANDIDATE_STAGE_LABELS[stage].toLowerCase()}
                 </div>
               )}

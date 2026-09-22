@@ -31,7 +31,7 @@ export default async function ClientsPage() {
               <h2 className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
                 {CLIENT_STAGE_LABELS[stage]}
               </h2>
-              <span className="rounded-full bg-neutral-200 px-2 py-0.5 text-xs font-semibold text-neutral-500">
+              <span className="rounded-full bg-white px-2.5 py-0.5 text-xs font-bold text-ink shadow-sm">
                 {stageClients.length}
               </span>
             </div>
@@ -51,11 +51,11 @@ export default async function ClientsPage() {
                 return (
                   <div
                     key={client.id}
-                    className="rounded-xl border border-neutral-200 bg-white p-4 shadow-sm transition-colors hover:border-neutral-300"
+                    className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-transparent transition hover:ring-blue-200"
                   >
                     <Link
                       href={`/clients/${client.id}`}
-                      className="font-semibold text-neutral-900 hover:text-blue-600"
+                      className="font-bold text-ink hover:text-accent"
                     >
                       {client.name}
                     </Link>
@@ -91,7 +91,7 @@ export default async function ClientsPage() {
               })}
               {stageClients.length === 0 && (
                 <div
-                  className={`rounded-xl border border-dashed border-neutral-200 p-4 text-center text-xs text-neutral-400`}
+                  className={`rounded-3xl border-2 border-dashed border-neutral-300 p-4 text-center text-xs text-neutral-400`}
                 >
                   No clients {CLIENT_STAGE_LABELS[stage].toLowerCase()}
                 </div>

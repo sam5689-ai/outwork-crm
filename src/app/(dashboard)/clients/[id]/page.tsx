@@ -105,7 +105,7 @@ export default async function ClientDetailPage({
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-1">
-          <h2 className="mb-4 text-sm font-semibold text-neutral-900">
+          <h2 className="mb-4 font-display text-base font-semibold text-ink">
             Company Details
           </h2>
           <form action={updateClientDetailsWithId} className="space-y-5">
@@ -236,7 +236,7 @@ export default async function ClientDetailPage({
 
         <Card className="lg:col-span-2">
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-neutral-900">Jobs</h2>
+            <h2 className="font-display text-base font-semibold text-ink">Jobs</h2>
             <LinkButton href={`/clients/${client.id}/jobs/new`} variant="secondary">
               <Plus className="h-4 w-4" />
               New Job

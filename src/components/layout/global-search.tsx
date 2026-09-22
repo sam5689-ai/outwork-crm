@@ -102,9 +102,10 @@ export function GlobalSearch() {
         type="button"
         onClick={openSearch}
         aria-label="Search contacts, clients and candidates"
-        className="flex h-9 w-9 items-center justify-center rounded-lg text-neutral-500 transition hover:bg-neutral-50 hover:text-neutral-900"
+        className="flex h-12 items-center gap-2.5 rounded-full bg-white px-4 text-sm font-medium text-neutral-500 shadow-sm transition hover:text-ink sm:w-72"
       >
         <Search className="h-[18px] w-[18px]" />
+        <span className="hidden sm:inline">Search anything</span>
       </button>
     );
   }
@@ -112,8 +113,8 @@ export function GlobalSearch() {
   return (
     <div ref={containerRef} className="relative w-full max-w-xs sm:w-72">
       <form onSubmit={onSubmit}>
-        <div className="flex items-center gap-2 rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm shadow-sm focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100">
-          <Search className="h-4 w-4 shrink-0 text-neutral-400" />
+        <div className="flex h-12 items-center gap-2.5 rounded-full bg-white px-4 text-sm shadow-sm ring-2 ring-transparent focus-within:ring-blue-200">
+          <Search className="h-[18px] w-[18px] shrink-0 text-neutral-500" />
           <input
             ref={inputRef}
             type="text"
