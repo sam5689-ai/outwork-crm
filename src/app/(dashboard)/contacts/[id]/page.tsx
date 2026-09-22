@@ -40,6 +40,10 @@ export default async function ContactDetailPage({
     requireUser(),
     getGoogleFeatures(),
   ]);
+  const googleAccount = await prisma.googleAccount.findUnique({
+    where: { userId: user.id },
+  });
+  const hasGoogleAccount = Boolean(googleAccount);
 
   const contactInclude = {
     client: true,
@@ -264,17 +268,22 @@ export default async function ContactDetailPage({
                 <Mail className="mr-2 inline h-4 w-4 text-neutral-400" />
                 Linked Emails
               </h2>
-              <Link
-                href="/settings/integrations"
-                className="text-xs font-semibold text-blue-600 hover:underline"
-              >
-                Connect Gmail
-              </Link>
+              {!hasGoogleAccount && (
+                <Link
+                  href="/settings/integrations"
+                  className="text-xs font-semibold text-blue-600 hover:underline"
+                >
+                  Connect Gmail
+                </Link>
+              )}
             </div>
             {contact.emails.length === 0 ? (
               <p className="py-4 text-center text-sm text-neutral-400">
-                No emails linked yet. Connect your Google account in Settings
-                to automatically sync emails with this contact.
+                {!hasGoogleAccount
+                  ? "No emails linked yet. Connect your Google account in Settings to automatically sync emails with this contact."
+                  : !features.emailSync
+                    ? "No emails linked yet. Turn on email sync in Settings to automatically sync emails with this contact."
+                    : "No emails found for this contact yet."}
               </p>
             ) : (
               <ul className="divide-y divide-neutral-50">
@@ -340,14 +349,20 @@ export default async function ContactDetailPage({
             </div>
             {contact.meetings.length === 0 ? (
               <p className="py-4 text-center text-sm text-neutral-400">
-                No meetings scheduled yet. Connect Google in{" "}
-                <Link
-                  href="/settings/integrations"
-                  className="text-blue-600 hover:underline"
-                >
-                  Settings
-                </Link>{" "}
-                to create Google Meet events.
+                {hasGoogleAccount ? (
+                  "No meetings scheduled yet."
+                ) : (
+                  <>
+                    No meetings scheduled yet. Connect Google in{" "}
+                    <Link
+                      href="/settings/integrations"
+                      className="text-blue-600 hover:underline"
+                    >
+                      Settings
+                    </Link>{" "}
+                    to create Google Meet events.
+                  </>
+                )}
               </p>
             ) : (
               <ul className="divide-y divide-neutral-50">

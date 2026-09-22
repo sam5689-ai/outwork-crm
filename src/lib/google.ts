@@ -44,6 +44,8 @@ export function getGoogleAuthUrl(state: string) {
  * hasn't connected a Google account.
  */
 export async function getUserGoogleClient(userId: string) {
+  if (!isGoogleConfigured()) return null;
+
   const account = await prisma.googleAccount.findUnique({
     where: { userId },
   });
