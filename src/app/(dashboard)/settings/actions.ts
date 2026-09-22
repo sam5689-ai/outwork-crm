@@ -5,6 +5,7 @@ import bcrypt from "bcryptjs";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin, requireUser } from "@/lib/session";
+import { seedDemoData } from "@/lib/demo-data";
 
 export type SettingsFormState = { error?: string; success?: string } | undefined;
 
@@ -180,4 +181,24 @@ export async function updateGoogleFeatures(formData: FormData) {
   revalidatePath("/settings/integrations");
   revalidatePath("/dashboard");
   revalidatePath("/contacts", "layout");
+}
+
+export type DemoDataState = { message: string } | undefined;
+
+export async function loadDemoData(): Promise<DemoDataState> {
+  const admin = await requireAdmin();
+
+  const result = await seedDemoData(prisma, admin.id);
+
+  revalidatePath("/dashboard");
+  revalidatePath("/contacts");
+  revalidatePath("/clients");
+  revalidatePath("/candidates");
+  revalidatePath("/jobs");
+
+  return {
+    message: result.skipped
+      ? "Demo data was already loaded - nothing new added."
+      : "Demo data added: 5 deals, 5 candidates, jobs, matches, notes, meetings and emails.",
+  };
 }
