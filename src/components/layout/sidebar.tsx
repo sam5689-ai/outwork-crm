@@ -9,6 +9,7 @@ import {
   Building2,
   UserSquare2,
   Briefcase,
+  CalendarDays,
   Inbox,
   Settings,
   X,
@@ -20,6 +21,7 @@ const navItems = [
   { href: "/clients", label: "Deals", icon: Building2 },
   { href: "/candidates", label: "Candidates", icon: UserSquare2 },
   { href: "/jobs", label: "Jobs", icon: Briefcase },
+  { href: "/calendar", label: "Calendar", icon: CalendarDays },
 ];
 
 const inboxItem = { href: "/inbox", label: "Inbox", icon: Inbox };

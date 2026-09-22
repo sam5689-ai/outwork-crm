@@ -1,12 +1,14 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { requireUser } from "@/lib/session";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { FormField, Textarea, Input } from "@/components/ui/field";
 import { StageSelect } from "@/components/ui/stage-select";
 import { ResumeUpload } from "@/components/candidates/resume-upload";
+import { UpcomingMeetingsCard } from "@/components/calendar/upcoming-meetings-card";
 import {
   CANDIDATE_STAGES,
   CANDIDATE_STAGE_LABELS,
@@ -29,16 +31,19 @@ export default async function CandidateDetailPage({
 }) {
   const { id } = await params;
 
-  const candidate = await prisma.candidate.findUnique({
-    where: { id },
-    include: {
-      contact: true,
-      matches: {
-        orderBy: { createdAt: "desc" },
-        include: { job: { include: { client: true } } },
+  const [user, candidate] = await Promise.all([
+    requireUser(),
+    prisma.candidate.findUnique({
+      where: { id },
+      include: {
+        contact: true,
+        matches: {
+          orderBy: { createdAt: "desc" },
+          include: { job: { include: { client: true } } },
+        },
       },
-    },
-  });
+    }),
+  ]);
 
   if (!candidate) notFound();
 
@@ -201,6 +206,13 @@ export default async function CandidateDetailPage({
             </ul>
           )}
         </Card>
+      </div>
+
+      <div className="mt-6">
+        <UpcomingMeetingsCard
+          userId={user.id}
+          contactEmail={candidate.contact.email}
+        />
       </div>
     </div>
   );

@@ -1,8 +1,238 @@
 import { randomUUID } from "crypto";
-import { google } from "googleapis";
+import { google, calendar_v3 } from "googleapis";
 import { getUserGoogleClient } from "@/lib/google";
 import { prisma } from "@/lib/prisma";
 import type { Contact, Meeting } from "@/generated/prisma/client";
+
+export class CalendarNotConnectedError extends Error {
+  constructor() {
+    super("Google account not connected.");
+    this.name = "CalendarNotConnectedError";
+  }
+}
+
+export class CalendarApiError extends Error {
+  constructor(action: string, cause: unknown) {
+    super(`Google Calendar ${action} failed. Your connection may need to be refreshed.`);
+    this.name = "CalendarApiError";
+    this.cause = cause;
+  }
+}
+
+export type CrmLinkType = "contact" | "client" | "candidate";
+export type CrmLink = { type: CrmLinkType; id: string } | null;
+
+export type CalendarEventInput = {
+  title: string;
+  description?: string | null;
+  location?: string | null;
+  startTime: Date;
+  endTime: Date;
+  timeZone: string;
+  allDay?: boolean;
+  attendees?: string[];
+  addMeetLink?: boolean;
+  crmLink?: CrmLink;
+};
+
+export type NormalizedCalendarEvent = {
+  id: string;
+  title: string;
+  description: string | null;
+  location: string | null;
+  start: string;
+  end: string;
+  allDay: boolean;
+  meetLink: string | null;
+  htmlLink: string | null;
+  attendees: { email: string; name: string | null; responseStatus: string | null }[];
+  crmLink: CrmLink;
+};
+
+function readCrmLink(event: calendar_v3.Schema$Event): CrmLink {
+  const props = event.extendedProperties?.private;
+  const type = props?.crmType as CrmLinkType | undefined;
+  const id = props?.crmId;
+  if (!type || !id) return null;
+  if (type !== "contact" && type !== "client" && type !== "candidate") return null;
+  return { type, id };
+}
+
+function normalizeEvent(event: calendar_v3.Schema$Event): NormalizedCalendarEvent | null {
+  if (!event.id) return null;
+  const allDay = Boolean(event.start?.date && !event.start?.dateTime);
+  const start = event.start?.dateTime ?? event.start?.date;
+  const end = event.end?.dateTime ?? event.end?.date;
+  if (!start || !end) return null;
+
+  return {
+    id: event.id,
+    title: event.summary || "(no title)",
+    description: event.description ?? null,
+    location: event.location ?? null,
+    start,
+    end,
+    allDay,
+    meetLink:
+      event.hangoutLink ?? event.conferenceData?.entryPoints?.[0]?.uri ?? null,
+    htmlLink: event.htmlLink ?? null,
+    attendees: (event.attendees ?? [])
+      .filter((a) => a.email)
+      .map((a) => ({
+        email: a.email!,
+        name: a.displayName ?? null,
+        responseStatus: a.responseStatus ?? null,
+      })),
+    crmLink: readCrmLink(event),
+  };
+}
+
+function buildEventBody(
+  input: CalendarEventInput
+): calendar_v3.Schema$Event {
+  const body: calendar_v3.Schema$Event = {
+    summary: input.title,
+    description: input.description || undefined,
+    location: input.location || undefined,
+    attendees: input.attendees?.length
+      ? input.attendees.map((email) => ({ email }))
+      : undefined,
+  };
+
+  if (input.allDay) {
+    const toDateOnly = (d: Date) => d.toISOString().slice(0, 10);
+    body.start = { date: toDateOnly(input.startTime) };
+    body.end = { date: toDateOnly(input.endTime) };
+  } else {
+    body.start = {
+      dateTime: input.startTime.toISOString(),
+      timeZone: input.timeZone,
+    };
+    body.end = { dateTime: input.endTime.toISOString(), timeZone: input.timeZone };
+  }
+
+  if (input.addMeetLink) {
+    body.conferenceData = {
+      createRequest: {
+        requestId: randomUUID(),
+        conferenceSolutionKey: { type: "hangoutsMeet" },
+      },
+    };
+  }
+
+  if (input.crmLink) {
+    body.extendedProperties = {
+      private: { crmType: input.crmLink.type, crmId: input.crmLink.id },
+    };
+  }
+
+  return body;
+}
+
+/** Lists events on the user's primary calendar within a date range. */
+export async function listCalendarEvents(
+  userId: string,
+  timeMin: Date,
+  timeMax: Date,
+  options?: { attendeeEmail?: string; maxResults?: number }
+): Promise<NormalizedCalendarEvent[]> {
+  const auth = await getUserGoogleClient(userId);
+  if (!auth) throw new CalendarNotConnectedError();
+
+  const calendar = google.calendar({ version: "v3", auth });
+
+  let list;
+  try {
+    list = await calendar.events.list({
+      calendarId: "primary",
+      timeMin: timeMin.toISOString(),
+      timeMax: timeMax.toISOString(),
+      q: options?.attendeeEmail || undefined,
+      singleEvents: true,
+      orderBy: "startTime",
+      maxResults: options?.maxResults ?? 250,
+    });
+  } catch (err) {
+    throw new CalendarApiError("sync", err);
+  }
+
+  if (options?.attendeeEmail) {
+    const needle = options.attendeeEmail.toLowerCase();
+    list.data.items = (list.data.items ?? []).filter((event) =>
+      (event.attendees ?? []).some((a) => a.email?.toLowerCase() === needle)
+    );
+  }
+
+  return (list.data.items ?? [])
+    .map(normalizeEvent)
+    .filter((e): e is NormalizedCalendarEvent => e !== null);
+}
+
+export async function createCalendarEvent(
+  userId: string,
+  input: CalendarEventInput
+): Promise<NormalizedCalendarEvent> {
+  const auth = await getUserGoogleClient(userId);
+  if (!auth) throw new CalendarNotConnectedError();
+
+  const calendar = google.calendar({ version: "v3", auth });
+
+  let event;
+  try {
+    const response = await calendar.events.insert({
+      calendarId: "primary",
+      conferenceDataVersion: input.addMeetLink ? 1 : undefined,
+      requestBody: buildEventBody(input),
+    });
+    event = response.data;
+  } catch (err) {
+    throw new CalendarApiError("create", err);
+  }
+
+  const normalized = normalizeEvent(event);
+  if (!normalized) throw new CalendarApiError("create", new Error("Malformed event returned"));
+  return normalized;
+}
+
+export async function updateCalendarEvent(
+  userId: string,
+  eventId: string,
+  input: CalendarEventInput
+): Promise<NormalizedCalendarEvent> {
+  const auth = await getUserGoogleClient(userId);
+  if (!auth) throw new CalendarNotConnectedError();
+
+  const calendar = google.calendar({ version: "v3", auth });
+
+  let event;
+  try {
+    const response = await calendar.events.patch({
+      calendarId: "primary",
+      eventId,
+      conferenceDataVersion: input.addMeetLink ? 1 : undefined,
+      requestBody: buildEventBody(input),
+    });
+    event = response.data;
+  } catch (err) {
+    throw new CalendarApiError("update", err);
+  }
+
+  const normalized = normalizeEvent(event);
+  if (!normalized) throw new CalendarApiError("update", new Error("Malformed event returned"));
+  return normalized;
+}
+
+export async function deleteCalendarEvent(userId: string, eventId: string): Promise<void> {
+  const auth = await getUserGoogleClient(userId);
+  if (!auth) throw new CalendarNotConnectedError();
+
+  const calendar = google.calendar({ version: "v3", auth });
+  try {
+    await calendar.events.delete({ calendarId: "primary", eventId });
+  } catch (err) {
+    throw new CalendarApiError("delete", err);
+  }
+}
 
 export async function createGoogleMeetEvent({
   userId,

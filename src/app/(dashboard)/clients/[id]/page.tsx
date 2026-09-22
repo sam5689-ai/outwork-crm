@@ -2,10 +2,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Plus } from "lucide-react";
 import { prisma } from "@/lib/prisma";
+import { requireUser } from "@/lib/session";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { LinkButton } from "@/components/ui/button";
 import { StageSelect } from "@/components/ui/stage-select";
+import { UpcomingMeetingsCard } from "@/components/calendar/upcoming-meetings-card";
 import {
   CLIENT_STAGES,
   CLIENT_STAGE_LABELS,
@@ -22,21 +24,23 @@ export default async function ClientDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-
-  const client = await prisma.client.findUnique({
-    where: { id },
-    include: {
-      contact: true,
-      jobs: {
-        orderBy: { createdAt: "desc" },
-        include: {
-          matches: {
-            include: { candidate: { include: { contact: true } } },
+  const [user, client] = await Promise.all([
+    requireUser(),
+    prisma.client.findUnique({
+      where: { id },
+      include: {
+        contact: true,
+        jobs: {
+          orderBy: { createdAt: "desc" },
+          include: {
+            matches: {
+              include: { candidate: { include: { contact: true } } },
+            },
           },
         },
       },
-    },
-  });
+    }),
+  ]);
 
   if (!client) notFound();
 
@@ -167,6 +171,13 @@ export default async function ClientDetailPage({
           </div>
         )}
       </Card>
+
+      <div className="mt-6">
+        <UpcomingMeetingsCard
+          userId={user.id}
+          contactEmail={client.contact.email}
+        />
+      </div>
     </div>
   );
 }

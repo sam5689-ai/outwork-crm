@@ -34,6 +34,8 @@ export async function GET(request: NextRequest) {
     email: contact.email,
     isDeal: Boolean(contact.client),
     isCandidate: Boolean(contact.candidate),
+    clientId: contact.client?.id ?? null,
+    candidateId: contact.candidate?.id ?? null,
   }));
 
   return NextResponse.json({ results });
