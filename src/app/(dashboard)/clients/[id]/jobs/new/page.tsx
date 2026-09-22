@@ -2,8 +2,10 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card } from "@/components/ui/card";
-import { FormField, Input, Textarea } from "@/components/ui/field";
+import { FormField, Input } from "@/components/ui/field";
 import { Button, LinkButton } from "@/components/ui/button";
+import { JobPostRoleFields } from "@/components/jobs/job-post-role-fields";
+import { isGeminiConfigured } from "@/lib/gemini";
 import { createJob } from "../../../actions";
 
 export default async function NewJobPage({
@@ -29,21 +31,11 @@ export default async function NewJobPage({
             <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-neutral-400">
               Role
             </h3>
-            <div className="space-y-4">
-              <FormField label="Job title" htmlFor="title">
-                <Input id="title" name="title" required />
-              </FormField>
-              <FormField label="Description" htmlFor="description">
-                <Textarea id="description" name="description" rows={4} />
-              </FormField>
-              <FormField label="Required skills" htmlFor="requiredSkills">
-                <Input
-                  id="requiredSkills"
-                  name="requiredSkills"
-                  placeholder="Comma-separated, e.g. Forklift Certified, Inventory Systems"
-                />
-              </FormField>
-            </div>
+            <JobPostRoleFields
+              clientName={client.name}
+              industry={client.industry}
+              aiEnabled={isGeminiConfigured()}
+            />
           </div>
 
           <div className="border-t border-neutral-100 pt-4">
