@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/session";
 import { getGoogleFeatures } from "@/lib/google-features";
 import { syncContactEmails } from "@/lib/gmail";
+import { sanitizeEmailHtml } from "@/lib/sanitize-email";
 import { importContactMeetings } from "@/lib/google-calendar";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -12,6 +13,7 @@ import { Button, LinkButton } from "@/components/ui/button";
 import { DeleteButton } from "@/components/contacts/delete-button";
 import { ScheduleMeetingForm } from "@/components/contacts/schedule-meeting-form";
 import { MeetingActions } from "@/components/contacts/meeting-actions";
+import { EmailBody } from "@/components/contacts/email-body";
 import {
   CLIENT_STAGE_LABELS,
   CLIENT_STAGE_COLORS,
@@ -297,14 +299,21 @@ export default async function ContactDetailPage({
                         </span>
                       </div>
                     </div>
-                    {email.body ? (
+                    {email.body || email.bodyHtml ? (
                       <details className="mt-1">
                         <summary className="cursor-pointer text-xs text-neutral-500 hover:text-neutral-700">
                           {email.snippet || "View email"}
                         </summary>
-                        <p className="mt-2 whitespace-pre-wrap text-xs text-neutral-600">
-                          {email.body}
-                        </p>
+                        <EmailBody
+                          html={
+                            email.bodyHtml
+                              ? sanitizeEmailHtml(email.bodyHtml)
+                              : null
+                          }
+                          text={email.body}
+                          attachments={email.attachments}
+                          messageId={email.gmailMessageId}
+                        />
                       </details>
                     ) : (
                       email.snippet && (

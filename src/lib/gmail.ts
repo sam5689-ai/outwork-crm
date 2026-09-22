@@ -3,26 +3,23 @@ import { prisma } from "@/lib/prisma";
 import { getUserGoogleClient } from "@/lib/google";
 import type { Contact } from "@/generated/prisma/client";
 
+export type EmailAttachment = {
+  attachmentId: string;
+  filename: string;
+  mimeType: string;
+  size: number;
+  contentId: string | null;
+  inline: boolean;
+};
+
+type ExtractedContent = {
+  text: string;
+  html: string;
+  attachments: EmailAttachment[];
+};
+
 function decodeBase64Url(data: string): string {
   return Buffer.from(data, "base64url").toString("utf-8");
-}
-
-function extractBody(payload: gmail_v1.Schema$MessagePart | undefined): string {
-  if (!payload) return "";
-  if (payload.body?.data) {
-    return decodeBase64Url(payload.body.data);
-  }
-  if (payload.parts?.length) {
-    const plain = payload.parts.find((p) => p.mimeType === "text/plain");
-    if (plain?.body?.data) return decodeBase64Url(plain.body.data);
-    const html = payload.parts.find((p) => p.mimeType === "text/html");
-    if (html?.body?.data) return decodeBase64Url(html.body.data);
-    for (const part of payload.parts) {
-      const nested = extractBody(part);
-      if (nested) return nested;
-    }
-  }
-  return "";
 }
 
 function getHeader(
@@ -33,6 +30,70 @@ function getHeader(
     headers?.find((h) => h.name?.toLowerCase() === name.toLowerCase())
       ?.value ?? ""
   );
+}
+
+function walkParts(
+  part: gmail_v1.Schema$MessagePart | undefined,
+  result: ExtractedContent
+): void {
+  if (!part) return;
+
+  const mimeType = part.mimeType ?? "";
+  const attachmentId = part.body?.attachmentId;
+
+  if (attachmentId) {
+    const contentId =
+      getHeader(part.headers, "Content-ID").replace(/^<|>$/g, "") || null;
+    const disposition = getHeader(part.headers, "Content-Disposition");
+    result.attachments.push({
+      attachmentId,
+      filename: part.filename || "attachment",
+      mimeType: mimeType || "application/octet-stream",
+      size: part.body?.size ?? 0,
+      contentId,
+      inline: Boolean(contentId) || disposition.toLowerCase().includes("inline"),
+    });
+    return;
+  }
+
+  if (part.body?.data) {
+    if (mimeType === "text/plain" && !result.text) {
+      result.text = decodeBase64Url(part.body.data);
+    } else if (mimeType === "text/html" && !result.html) {
+      result.html = decodeBase64Url(part.body.data);
+    }
+  }
+
+  if (part.parts?.length) {
+    for (const child of part.parts) walkParts(child, result);
+  }
+}
+
+function extractContent(
+  payload: gmail_v1.Schema$MessagePart | undefined
+): ExtractedContent {
+  const result: ExtractedContent = { text: "", html: "", attachments: [] };
+  walkParts(payload, result);
+  return result;
+}
+
+/**
+ * Rewrites cid: references in an email's HTML body (used for inline images
+ * like logos and signatures) to point at our attachment-proxy route, so the
+ * browser can load them without direct Gmail API access.
+ */
+function inlineAttachmentUrls(
+  html: string,
+  messageId: string,
+  attachments: EmailAttachment[]
+): string {
+  let result = html;
+  for (const att of attachments) {
+    if (!att.contentId) continue;
+    const src = `/api/gmail/attachments/${messageId}/${att.attachmentId}`;
+    result = result.split(`cid:${att.contentId}`).join(src);
+  }
+  return result;
 }
 
 /**
@@ -79,6 +140,7 @@ export async function syncContactEmails(userId: string, contact: Contact) {
         id: ref.id,
         format: "full",
       });
+      if (!message.id) continue;
 
       const headers = message.payload?.headers;
       const subject = getHeader(headers, "Subject") || "(no subject)";
@@ -90,6 +152,11 @@ export async function syncContactEmails(userId: string, contact: Contact) {
         ? "OUTBOUND"
         : "INBOUND";
 
+      const { text, html, attachments } = extractContent(message.payload);
+      const bodyHtml = html
+        ? inlineAttachmentUrls(html, message.id, attachments)
+        : null;
+
       const row = await prisma.emailMessage.create({
         data: {
           contactId: contact.id,
@@ -99,9 +166,12 @@ export async function syncContactEmails(userId: string, contact: Contact) {
           fromAddress,
           toAddress,
           snippet: message.snippet ?? null,
-          body: extractBody(message.payload) || message.snippet || null,
+          body: text || message.snippet || null,
+          bodyHtml,
+          attachments: attachments.length > 0 ? attachments : undefined,
           direction,
           sentAt: Number.isNaN(sentAt.getTime()) ? new Date() : sentAt,
+          syncedByUserId: userId,
         },
       });
       created.push(row);

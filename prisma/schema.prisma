@@ -62,6 +62,7 @@ model User {
   contacts      Contact[]      @relation("ContactOwner")
   activities    Activity[]
   googleAccount GoogleAccount?
+  syncedEmails  EmailMessage[]
 }
 
 model GoogleAccount {
@@ -170,9 +171,13 @@ model EmailMessage {
   toAddress       String
   snippet         String?
   body            String?        @db.Text
+  bodyHtml        String?        @db.Text
+  attachments     Json?
   direction       EmailDirection @default(OUTBOUND)
   sentAt          DateTime       @default(now())
   createdAt       DateTime       @default(now())
+  syncedByUserId  String?
+  syncedByUser    User?          @relation(fields: [syncedByUserId], references: [id], onDelete: SetNull)
 
   @@index([contactId])
 }
