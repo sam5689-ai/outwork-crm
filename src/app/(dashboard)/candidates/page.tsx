@@ -1,7 +1,9 @@
 import Link from "next/link";
+import { Plus } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { PageHeader } from "@/components/ui/page-header";
 import { StageSelect } from "@/components/ui/stage-select";
+import { LinkButton } from "@/components/ui/button";
 import { CANDIDATE_STAGES, CANDIDATE_STAGE_LABELS } from "@/lib/stages";
 import { updateCandidateStage } from "./actions";
 
@@ -21,6 +23,12 @@ export default async function CandidatesPage() {
       <PageHeader
         title="Candidates"
         description="Track candidates from sourcing through to acceptance"
+        actions={
+          <LinkButton href="/candidates/new">
+            <Plus className="h-4 w-4" />
+            New Candidate
+          </LinkButton>
+        }
       />
 
       <div className="flex gap-4 overflow-x-auto pb-4">
