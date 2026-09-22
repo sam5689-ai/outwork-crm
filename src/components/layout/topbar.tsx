@@ -1,4 +1,4 @@
-import { Menu } from "lucide-react";
+import { Menu, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { SignOutButton } from "./sign-out-button";
 import { GlobalSearch } from "./global-search";
 
@@ -6,10 +6,14 @@ export function Topbar({
   name,
   role,
   onMenuClick,
+  sidebarCollapsed = false,
+  onToggleSidebar,
 }: {
   name: string;
   role: "ADMIN" | "USER";
   onMenuClick?: () => void;
+  sidebarCollapsed?: boolean;
+  onToggleSidebar?: () => void;
 }) {
   const initials = name
     .split(" ")
@@ -27,6 +31,21 @@ export function Topbar({
       >
         <Menu className="h-5 w-5" />
       </button>
+      {onToggleSidebar && (
+        <button
+          type="button"
+          onClick={onToggleSidebar}
+          title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+          aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+          className="hidden rounded-lg p-2 text-neutral-500 hover:bg-neutral-50 hover:text-neutral-900 lg:inline-flex"
+        >
+          {sidebarCollapsed ? (
+            <PanelLeftOpen className="h-5 w-5" />
+          ) : (
+            <PanelLeftClose className="h-5 w-5" />
+          )}
+        </button>
+      )}
 
       <GlobalSearch />
 

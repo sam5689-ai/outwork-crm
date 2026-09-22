@@ -9,7 +9,15 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
-import { getPlacementReport, reportingPeriods } from "@/lib/reporting";
+import { clsx } from "clsx";
+import {
+  DEFAULT_REPORT_PERIOD,
+  REPORT_PERIODS,
+  REPORT_PERIOD_LABELS,
+  getPlacementReport,
+  parseReportPeriod,
+  reportRange,
+} from "@/lib/reporting";
 import { getGoogleFeatures } from "@/lib/google-features";
 import { Card } from "@/components/ui/card";
 import { StatCard } from "@/components/ui/stat-card";
@@ -30,9 +38,32 @@ import {
 
 const FOLLOW_UP_DAYS = 5;
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ period?: string }>;
+}) {
   const now = new Date();
-  const { startOfMonth } = reportingPeriods(now);
+  const period = parseReportPeriod((await searchParams).period);
+  const range = reportRange(period, now);
+  const periodLabel = REPORT_PERIOD_LABELS[period];
+  const formatDay = (date: Date) =>
+    date.toLocaleDateString("en-GB", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+      timeZone: "UTC",
+    });
+  // range.end is exclusive, so the last day shown is the day before it
+  // (or today, for ranges that run up to now).
+  const lastDay =
+    range.end.getTime() === now.getTime()
+      ? now
+      : new Date(range.end.getTime() - 1);
+  const rangeText =
+    formatDay(range.start) === formatDay(lastDay)
+      ? formatDay(range.start)
+      : `${formatDay(range.start)} – ${formatDay(lastDay)}`;
   const startOfDay = new Date(
     Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())
   );
@@ -52,7 +83,7 @@ export default async function DashboardPage() {
     candidatesByStage,
     jobsByStage,
     report,
-    jobsFilledThisMonth,
+    jobsFilledInPeriod,
     todaysMeetings,
     contactsWithRecentEmail,
   ] = await Promise.all([
@@ -65,9 +96,12 @@ export default async function DashboardPage() {
     prisma.client.groupBy({ by: ["stage"], _count: { _all: true } }),
     prisma.candidate.groupBy({ by: ["stage"], _count: { _all: true } }),
     prisma.job.groupBy({ by: ["stage"], _count: { _all: true } }),
-    getPlacementReport(now),
+    getPlacementReport(range),
     prisma.job.findMany({
-      where: { stage: "FILLED_WON", filledAt: { gte: startOfMonth } },
+      where: {
+        stage: "FILLED_WON",
+        filledAt: { gte: range.start, lt: range.end },
+      },
       orderBy: { filledAt: "desc" },
       include: { client: true },
     }),
@@ -115,42 +149,70 @@ export default async function DashboardPage() {
         description="Jobs filled and clients landed, plus everything in the pipeline"
       />
 
+      <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <nav
+          aria-label="Reporting period"
+          className="flex flex-wrap gap-1 rounded-lg border border-neutral-200 bg-white p-1"
+        >
+          {REPORT_PERIODS.map((option) => (
+            <Link
+              key={option}
+              href={
+                option === DEFAULT_REPORT_PERIOD
+                  ? "/dashboard"
+                  : `/dashboard?period=${option}`
+              }
+              aria-current={option === period ? "page" : undefined}
+              className={clsx(
+                "rounded-md px-3 py-1.5 text-xs font-semibold transition-colors",
+                option === period
+                  ? "bg-neutral-900 text-white"
+                  : "text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900"
+              )}
+            >
+              {REPORT_PERIOD_LABELS[option]}
+            </Link>
+          ))}
+        </nav>
+        <p className="text-xs text-neutral-400">{rangeText}</p>
+      </div>
+
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-6">
         <div className="sm:col-span-2">
           <ReportCard
             title="Jobs Filled"
-            thisMonth={report.jobsFilled.thisMonth}
-            yearToDate={report.jobsFilled.yearToDate}
+            value={report.jobsFilled}
+            periodLabel={periodLabel}
             tone="positive"
             featured
-            detail={`${report.clientsLanded.thisMonth} new client${
-              report.clientsLanded.thisMonth === 1 ? "" : "s"
-            } · ${report.repeatJobsFilled.thisMonth} repeat this month`}
+            detail={`${report.clientsLanded} new client${
+              report.clientsLanded === 1 ? "" : "s"
+            } · ${report.repeatJobsFilled} repeat`}
           />
         </div>
         <ReportCard
           title="Clients Landed"
-          thisMonth={report.clientsLanded.thisMonth}
-          yearToDate={report.clientsLanded.yearToDate}
+          value={report.clientsLanded}
+          periodLabel={periodLabel}
           tone="positive"
           detail="First job filled for a new client"
         />
         <ReportCard
           title="Repeat Jobs Filled"
-          thisMonth={report.repeatJobsFilled.thisMonth}
-          yearToDate={report.repeatJobsFilled.yearToDate}
+          value={report.repeatJobsFilled}
+          periodLabel={periodLabel}
           detail="Filled for a client we'd already landed"
         />
         <ReportCard
           title="New Jobs"
-          thisMonth={report.jobsOpened.thisMonth}
-          yearToDate={report.jobsOpened.yearToDate}
+          value={report.jobsOpened}
+          periodLabel={periodLabel}
           detail="Jobs opened"
         />
         <ReportCard
           title="Jobs Lost"
-          thisMonth={report.jobsLost.thisMonth}
-          yearToDate={report.jobsLost.yearToDate}
+          value={report.jobsLost}
+          periodLabel={periodLabel}
           tone="negative"
           detail="Cancelled before being filled"
         />
@@ -188,16 +250,16 @@ export default async function DashboardPage() {
         <div className="mb-4 flex items-center gap-2">
           <CheckCircle2 className="h-4 w-4 text-emerald-500" />
           <h2 className="text-sm font-semibold text-neutral-900">
-            Filled This Month
+            Filled: {periodLabel}
           </h2>
         </div>
-        {jobsFilledThisMonth.length === 0 ? (
+        {jobsFilledInPeriod.length === 0 ? (
           <p className="py-4 text-center text-sm text-neutral-400">
-            No jobs filled yet this month.
+            No jobs filled in this period.
           </p>
         ) : (
           <ul className="divide-y divide-neutral-50">
-            {jobsFilledThisMonth.map((job) => {
+            {jobsFilledInPeriod.map((job) => {
               const landedAt = report.landedAtByClient.get(job.clientId);
               const isNewClient =
                 landedAt != null &&

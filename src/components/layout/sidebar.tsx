@@ -33,26 +33,31 @@ function NavLink({
   label,
   icon: Icon,
   active,
+  collapsed,
   onNavigate,
 }: {
   href: string;
   label: string;
   icon: typeof LayoutDashboard;
   active: boolean;
+  collapsed: boolean;
   onNavigate?: () => void;
 }) {
   return (
     <Link
       href={href}
       onClick={onNavigate}
-      className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+      title={collapsed ? label : undefined}
+      className={clsx(
+        "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+        collapsed && "lg:justify-center lg:px-0",
         active
           ? "bg-neutral-100 text-neutral-900"
           : "text-neutral-500 hover:bg-neutral-50 hover:text-neutral-900"
-      }`}
+      )}
     >
-      <Icon className="h-[18px] w-[18px]" strokeWidth={2} />
-      {label}
+      <Icon className="h-[18px] w-[18px] shrink-0" strokeWidth={2} />
+      <span className={clsx(collapsed && "lg:hidden")}>{label}</span>
     </Link>
   );
 }
@@ -63,12 +68,14 @@ export function Sidebar({
   companyName = "Outwork CRM",
   logoUrl,
   inboxEnabled = false,
+  collapsed = false,
 }: {
   mobileOpen?: boolean;
   onClose?: () => void;
   companyName?: string;
   logoUrl?: string | null;
   inboxEnabled?: boolean;
+  collapsed?: boolean;
 }) {
   const pathname = usePathname();
 
@@ -82,11 +89,17 @@ export function Sidebar({
       )}
       <aside
         className={clsx(
-          "fixed inset-y-0 left-0 z-40 flex w-64 flex-col border-r border-neutral-200 bg-white px-4 py-6 transition-transform duration-200 lg:z-20 lg:translate-x-0",
+          "fixed inset-y-0 left-0 z-40 flex w-64 flex-col border-r border-neutral-200 bg-white px-4 py-6 transition-[transform,width] duration-200 lg:z-20 lg:translate-x-0",
+          collapsed && "lg:w-16 lg:px-2",
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
-        <div className="mb-8 flex items-center justify-between px-2">
+        <div
+          className={clsx(
+            "mb-8 flex items-center justify-between px-2",
+            collapsed && "lg:justify-center lg:px-0"
+          )}
+        >
           <Link href="/dashboard" className="flex items-center gap-2">
             {logoUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -100,7 +113,12 @@ export function Sidebar({
                 {companyName.charAt(0).toUpperCase() || "O"}
               </div>
             )}
-            <span className="truncate text-[15px] font-semibold tracking-tight text-neutral-900">
+            <span
+              className={clsx(
+                "truncate text-[15px] font-semibold tracking-tight text-neutral-900",
+                collapsed && "lg:hidden"
+              )}
+            >
               {companyName}
             </span>
           </Link>
@@ -113,7 +131,12 @@ export function Sidebar({
           </button>
         </div>
 
-        <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wide text-neutral-400">
+        <p
+          className={clsx(
+            "mb-2 px-3 text-xs font-semibold uppercase tracking-wide text-neutral-400",
+            collapsed && "lg:hidden"
+          )}
+        >
           Pipeline
         </p>
         <nav className="flex flex-1 flex-col gap-1">
@@ -121,6 +144,7 @@ export function Sidebar({
             <NavLink
               key={item.href}
               {...item}
+              collapsed={collapsed}
               onNavigate={onClose}
               active={
                 pathname === item.href || pathname.startsWith(item.href + "/")
@@ -130,6 +154,7 @@ export function Sidebar({
           {inboxEnabled && (
             <NavLink
               {...inboxItem}
+              collapsed={collapsed}
               onNavigate={onClose}
               active={pathname.startsWith(inboxItem.href)}
             />
@@ -137,11 +162,17 @@ export function Sidebar({
         </nav>
 
         <div className="mt-4 border-t border-neutral-200 pt-4">
-          <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wide text-neutral-400">
+          <p
+            className={clsx(
+              "mb-2 px-3 text-xs font-semibold uppercase tracking-wide text-neutral-400",
+              collapsed && "lg:hidden"
+            )}
+          >
             Account
           </p>
           <NavLink
             {...settingsItem}
+            collapsed={collapsed}
             onNavigate={onClose}
             active={pathname.startsWith(settingsItem.href)}
           />
