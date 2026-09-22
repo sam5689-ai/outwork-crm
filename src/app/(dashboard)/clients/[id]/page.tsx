@@ -41,6 +41,16 @@ export default async function ClientDetailPage({
   if (!client) notFound();
 
   const updateStageWithId = updateClientStage.bind(null, client.id);
+  const filledJobs = client.jobs.filter(
+    (job) => job.stage === "FILLED_WON" && job.filledAt
+  );
+  const landedAt = filledJobs.reduce<Date | null>(
+    (first, job) => (!first || job.filledAt! < first ? job.filledAt : first),
+    null
+  );
+  const activeJobCount = client.jobs.filter(
+    (job) => job.stage !== "FILLED_WON" && job.stage !== "CANCELLED_LOST"
+  ).length;
   const updateClientDetailsWithId = updateClientDetails.bind(null, client.id);
 
   return (
@@ -59,6 +69,28 @@ export default async function ClientDetailPage({
               {client.contact.firstName} {client.contact.lastName}
             </Link>
           </p>
+          <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
+            {landedAt ? (
+              <Badge className="bg-emerald-50 text-emerald-700">
+                Landed{" "}
+                {landedAt.toLocaleDateString(undefined, {
+                  month: "short",
+                  day: "numeric",
+                  year: "numeric",
+                })}
+              </Badge>
+            ) : (
+              <Badge className="bg-neutral-100 text-neutral-500">
+                Not landed yet
+              </Badge>
+            )}
+            <span className="font-semibold text-neutral-600">
+              {filledJobs.length} job{filledJobs.length === 1 ? "" : "s"} filled
+            </span>
+            <span className="text-neutral-400">
+              · {activeJobCount} active
+            </span>
+          </div>
         </div>
         <StageSelect
           action={updateStageWithId}
@@ -73,7 +105,7 @@ export default async function ClientDetailPage({
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-1">
-          <h2 className="mb-4 text-sm font-semibold text-neutral-900">
+          <h2 className="mb-4 font-display text-base font-semibold text-ink">
             Company Details
           </h2>
           <form action={updateClientDetailsWithId} className="space-y-5">
@@ -204,7 +236,7 @@ export default async function ClientDetailPage({
 
         <Card className="lg:col-span-2">
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-neutral-900">Jobs</h2>
+            <h2 className="font-display text-base font-semibold text-ink">Jobs</h2>
             <LinkButton href={`/clients/${client.id}/jobs/new`} variant="secondary">
               <Plus className="h-4 w-4" />
               New Job
@@ -213,7 +245,7 @@ export default async function ClientDetailPage({
 
           {client.jobs.length === 0 ? (
             <p className="py-6 text-center text-sm text-neutral-400">
-              No jobs yet for this deal.
+              No jobs yet for this client.
             </p>
           ) : (
             <div className="space-y-3">

@@ -25,7 +25,7 @@ export function LoginForm({ callbackUrl }: { callbackUrl: string }) {
           type="text"
           autoComplete="username"
           required
-          className="w-full rounded-lg border border-neutral-200 px-4 py-2.5 text-sm text-neutral-900 shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+          className="w-full rounded-lg border border-neutral-200 bg-canvas px-4 py-3 text-sm text-neutral-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
           placeholder="admin"
         />
       </div>
@@ -42,7 +42,7 @@ export function LoginForm({ callbackUrl }: { callbackUrl: string }) {
           type="password"
           autoComplete="current-password"
           required
-          className="w-full rounded-lg border border-neutral-200 px-4 py-2.5 text-sm text-neutral-900 shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+          className="w-full rounded-lg border border-neutral-200 bg-canvas px-4 py-3 text-sm text-neutral-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
           placeholder="••••••••"
         />
       </div>
@@ -56,7 +56,7 @@ export function LoginForm({ callbackUrl }: { callbackUrl: string }) {
       <button
         type="submit"
         disabled={isPending}
-        className="w-full rounded-lg bg-neutral-900 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-neutral-700 disabled:opacity-60"
+        className="h-12 w-full rounded-full bg-ink px-4 text-sm font-semibold text-white transition-colors hover:bg-accent disabled:opacity-60"
       >
         {isPending ? "Signing in..." : "Sign in"}
       </button>

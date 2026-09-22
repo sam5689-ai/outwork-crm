@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/session";
+import { jobStageTimestamps } from "@/lib/placement";
 import { CLIENT_STAGES, JOB_STAGES } from "@/lib/stages";
 import type { ClientStage, JobStage } from "@/generated/prisma/enums";
 
@@ -103,14 +104,20 @@ export async function updateJobStage(jobId: string, formData: FormData) {
     return;
   }
 
+  const current = await prisma.job.findUniqueOrThrow({ where: { id: jobId } });
   const job = await prisma.job.update({
     where: { id: jobId },
-    data: { stage: stage as JobStage },
+    data: {
+      stage: stage as JobStage,
+      ...jobStageTimestamps(current.stage, stage as JobStage),
+    },
   });
 
   revalidatePath(`/clients/${job.clientId}`);
+  revalidatePath("/clients");
   revalidatePath(`/jobs/${jobId}`);
   revalidatePath("/jobs");
+  revalidatePath("/dashboard");
 }
 
 export async function duplicateJob(jobId: string, formData: FormData) {

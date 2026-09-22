@@ -108,7 +108,7 @@ export function EventPopover({
             href={event.crmLink.href}
             className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:underline"
           >
-            View {event.crmLink.type === "client" ? "Deal" : event.crmLink.type === "candidate" ? "Candidate" : "Contact"}: {event.crmLink.label}
+            View {event.crmLink.type === "client" ? "Client" : event.crmLink.type === "candidate" ? "Candidate" : "Contact"}: {event.crmLink.label}
             <ExternalLink className="h-3.5 w-3.5" />
           </Link>
         )}

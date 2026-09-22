@@ -4,55 +4,61 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { clsx } from "clsx";
 import {
-  LayoutDashboard,
-  Contact2,
+  Gauge,
+  BriefcaseBusiness,
   Building2,
-  UserSquare2,
-  Briefcase,
+  UserRound,
+  Contact,
   CalendarDays,
-  Inbox,
-  Settings,
+  Mail,
+  SlidersHorizontal,
   X,
 } from "lucide-react";
 
 const navItems = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/contacts", label: "Contacts", icon: Contact2 },
-  { href: "/clients", label: "Deals", icon: Building2 },
-  { href: "/candidates", label: "Candidates", icon: UserSquare2 },
-  { href: "/jobs", label: "Jobs", icon: Briefcase },
+  { href: "/dashboard", label: "Dashboard", icon: Gauge },
+  { href: "/jobs", label: "Jobs", icon: BriefcaseBusiness },
+  { href: "/clients", label: "Clients", icon: Building2 },
+  { href: "/candidates", label: "Candidates", icon: UserRound },
+  { href: "/contacts", label: "Contacts", icon: Contact },
   { href: "/calendar", label: "Calendar", icon: CalendarDays },
 ];
 
-const inboxItem = { href: "/inbox", label: "Inbox", icon: Inbox };
+const inboxItem = { href: "/inbox", label: "Inbox", icon: Mail };
 
-const settingsItem = { href: "/settings", label: "Settings", icon: Settings };
+const settingsItem = { href: "/settings", label: "Settings", icon: SlidersHorizontal };
 
 function NavLink({
   href,
   label,
   icon: Icon,
   active,
+  collapsed,
   onNavigate,
 }: {
   href: string;
   label: string;
-  icon: typeof LayoutDashboard;
+  icon: typeof Gauge;
   active: boolean;
+  collapsed: boolean;
   onNavigate?: () => void;
 }) {
   return (
     <Link
       href={href}
       onClick={onNavigate}
-      className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+      title={collapsed ? label : undefined}
+      aria-current={active ? "page" : undefined}
+      className={clsx(
+        "flex h-12 items-center gap-3 rounded-[18px] px-4 text-sm font-semibold transition-colors",
+        collapsed && "lg:w-12 lg:justify-center lg:self-center lg:px-0",
         active
-          ? "bg-neutral-100 text-neutral-900"
-          : "text-neutral-500 hover:bg-neutral-50 hover:text-neutral-900"
-      }`}
+          ? "bg-white text-ink"
+          : "text-[#9EA1AB] hover:bg-white/10 hover:text-white"
+      )}
     >
-      <Icon className="h-[18px] w-[18px]" strokeWidth={2} />
-      {label}
+      <Icon className="h-[21px] w-[21px] shrink-0" strokeWidth={2} />
+      <span className={clsx(collapsed && "lg:hidden")}>{label}</span>
     </Link>
   );
 }
@@ -63,85 +69,96 @@ export function Sidebar({
   companyName = "Outwork CRM",
   logoUrl,
   inboxEnabled = false,
+  collapsed = false,
 }: {
   mobileOpen?: boolean;
   onClose?: () => void;
   companyName?: string;
   logoUrl?: string | null;
   inboxEnabled?: boolean;
+  collapsed?: boolean;
 }) {
   const pathname = usePathname();
+  const isActive = (href: string) =>
+    pathname === href || pathname.startsWith(href + "/");
 
   return (
     <>
       {mobileOpen && (
         <div
-          className="fixed inset-0 z-30 bg-neutral-900/40 lg:hidden"
+          className="fixed inset-0 z-30 bg-ink/40 lg:hidden"
           onClick={onClose}
         />
       )}
       <aside
         className={clsx(
-          "fixed inset-y-0 left-0 z-40 flex w-64 flex-col border-r border-neutral-200 bg-white px-4 py-6 transition-transform duration-200 lg:z-20 lg:translate-x-0",
-          mobileOpen ? "translate-x-0" : "-translate-x-full"
+          "fixed inset-y-3 left-3 z-40 flex w-60 flex-col rounded-[28px] bg-ink px-3 py-5 shadow-lg transition-[transform,width] duration-200 lg:z-20 lg:translate-x-0",
+          collapsed && "lg:w-[84px]",
+          mobileOpen ? "translate-x-0" : "-translate-x-[calc(100%+12px)]"
         )}
       >
-        <div className="mb-8 flex items-center justify-between px-2">
-          <Link href="/dashboard" className="flex items-center gap-2">
+        <div
+          className={clsx(
+            "mb-6 flex items-center justify-between px-1",
+            collapsed && "lg:justify-center lg:px-0"
+          )}
+        >
+          <Link href="/dashboard" className="flex min-w-0 items-center gap-3">
             {logoUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={logoUrl}
                 alt={companyName}
-                className="h-8 w-8 shrink-0 rounded-lg object-contain"
+                className="h-12 w-12 shrink-0 rounded-[16px] bg-white object-contain p-1"
               />
             ) : (
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-neutral-900 text-sm font-semibold text-white">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[16px] bg-accent font-display text-lg font-bold text-white">
                 {companyName.charAt(0).toUpperCase() || "O"}
               </div>
             )}
-            <span className="truncate text-[15px] font-semibold tracking-tight text-neutral-900">
+            <span
+              className={clsx(
+                "truncate font-display text-[15px] font-semibold text-white",
+                collapsed && "lg:hidden"
+              )}
+            >
               {companyName}
             </span>
           </Link>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg p-1.5 text-neutral-400 hover:bg-neutral-50 lg:hidden"
+            aria-label="Close menu"
+            className="rounded-full p-2 text-[#9EA1AB] hover:bg-white/10 hover:text-white lg:hidden"
           >
             <X className="h-5 w-5" />
           </button>
         </div>
 
-        <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wide text-neutral-400">
-          Pipeline
-        </p>
-        <nav className="flex flex-1 flex-col gap-1">
+        <nav aria-label="Main" className="flex flex-1 flex-col gap-1.5">
           {navItems.map((item) => (
             <NavLink
               key={item.href}
               {...item}
+              collapsed={collapsed}
               onNavigate={onClose}
-              active={
-                pathname === item.href || pathname.startsWith(item.href + "/")
-              }
+              active={isActive(item.href)}
             />
           ))}
           {inboxEnabled && (
             <NavLink
               {...inboxItem}
+              collapsed={collapsed}
               onNavigate={onClose}
               active={pathname.startsWith(inboxItem.href)}
             />
           )}
         </nav>
 
-        <div className="mt-4 border-t border-neutral-200 pt-4">
-          <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wide text-neutral-400">
-            Account
-          </p>
+        <div className="flex flex-col pt-4">
           <NavLink
             {...settingsItem}
+            collapsed={collapsed}
             onNavigate={onClose}
             active={pathname.startsWith(settingsItem.href)}
           />

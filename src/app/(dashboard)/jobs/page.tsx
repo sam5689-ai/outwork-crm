@@ -22,7 +22,7 @@ export default async function JobsPage() {
     <div>
       <PageHeader
         title="Jobs"
-        description="Every open role across all of your deals, tracked to a fill"
+        description="Every job across all of your clients, tracked to a fill"
       />
 
       <div className="flex gap-4 overflow-x-auto pb-4">
@@ -32,7 +32,7 @@ export default async function JobsPage() {
               <h2 className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
                 {JOB_STAGE_LABELS[stage]}
               </h2>
-              <span className="rounded-full bg-neutral-200 px-2 py-0.5 text-xs font-semibold text-neutral-500">
+              <span className="rounded-full bg-white px-2.5 py-0.5 text-xs font-bold text-ink shadow-sm">
                 {stageJobs.length}
               </span>
             </div>
@@ -49,11 +49,11 @@ export default async function JobsPage() {
                 return (
                   <div
                     key={job.id}
-                    className="rounded-xl border border-neutral-200 bg-white p-4 shadow-sm transition-colors hover:border-neutral-300"
+                    className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-transparent transition hover:ring-blue-200"
                   >
                     <Link
                       href={`/jobs/${job.id}`}
-                      className="font-semibold text-neutral-900 hover:text-blue-600"
+                      className="font-bold text-ink hover:text-accent"
                     >
                       {job.title}
                     </Link>
@@ -97,7 +97,7 @@ export default async function JobsPage() {
                 );
               })}
               {stageJobs.length === 0 && (
-                <div className="rounded-xl border border-dashed border-neutral-200 p-4 text-center text-xs text-neutral-400">
+                <div className="rounded-3xl border-2 border-dashed border-neutral-300 p-4 text-center text-xs text-neutral-400">
                   No jobs {JOB_STAGE_LABELS[stage].toLowerCase()}
                 </div>
               )}
@@ -108,7 +108,7 @@ export default async function JobsPage() {
 
       {jobs.length === 0 && (
         <p className="mt-6 text-sm text-neutral-400">
-          No jobs yet. Open one from a deal&apos;s page.
+          No jobs yet. Open one from a client&apos;s page.
         </p>
       )}
     </div>

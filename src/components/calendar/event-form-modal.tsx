@@ -121,7 +121,7 @@ export function EventFormModal({
         className="flex max-h-[85vh] w-full max-w-lg flex-col overflow-y-auto rounded-xl bg-white p-4 shadow-2xl"
       >
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-neutral-900">
+          <h2 className="font-display text-base font-semibold text-ink">
             {event ? "Edit Event" : "New Event"}
           </h2>
           <button

@@ -68,7 +68,7 @@ async function main() {
   console.log(
     result.skipped
       ? "Demo data already present, skipping."
-      : "Seeded demo data: 5 deals, 5 candidates, 2 unconverted contacts, 3 jobs, 2 matches, 5 activity notes, 2 meetings, 2 emails."
+      : "Seeded demo data: 5 clients, 5 candidates, 2 unconverted contacts, 4 jobs, 5 matches, 5 activity notes, 2 meetings, 2 emails."
   );
 }
 
