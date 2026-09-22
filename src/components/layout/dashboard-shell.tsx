@@ -9,12 +9,14 @@ export function DashboardShell({
   role,
   companyName,
   logoUrl,
+  inboxEnabled,
   children,
 }: {
   name: string;
   role: "ADMIN" | "USER";
   companyName?: string;
   logoUrl?: string | null;
+  inboxEnabled?: boolean;
   children: React.ReactNode;
 }) {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -26,6 +28,7 @@ export function DashboardShell({
         onClose={() => setMobileOpen(false)}
         companyName={companyName}
         logoUrl={logoUrl}
+        inboxEnabled={inboxEnabled}
       />
       <div className="flex min-h-screen flex-col lg:pl-64">
         <Topbar name={name} role={role} onMenuClick={() => setMobileOpen(true)} />

@@ -48,6 +48,14 @@ enum EmailDirection {
   OUTBOUND
 }
 
+enum EmailFolder {
+  INBOX
+  SENT
+  ARCHIVE
+  TRASH
+  DRAFT
+}
+
 model User {
   id           String   @id @default(cuid())
   username     String   @unique
@@ -164,25 +172,33 @@ model CandidateMatch {
 }
 
 model EmailMessage {
-  id             String         @id @default(cuid())
-  contactId      String
-  contact        Contact        @relation(fields: [contactId], references: [id], onDelete: Cascade)
-  gmailMessageId String?        @unique
-  gmailThreadId  String?
-  subject        String
-  fromAddress    String
-  toAddress      String
-  snippet        String?
-  body           String?        @db.Text
-  bodyHtml       String?        @db.Text
-  attachments    Json?
-  direction      EmailDirection @default(OUTBOUND)
-  sentAt         DateTime       @default(now())
-  createdAt      DateTime       @default(now())
-  syncedByUserId String?
-  syncedByUser   User?          @relation(fields: [syncedByUserId], references: [id], onDelete: SetNull)
+  id                 String         @id @default(cuid())
+  contactId          String?
+  contact            Contact?       @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  gmailMessageId     String?        @unique
+  gmailThreadId      String?
+  subject            String
+  fromAddress        String
+  toAddress          String
+  cc                 String?
+  bcc                String?
+  snippet            String?
+  body               String?        @db.Text
+  bodyHtml           String?        @db.Text
+  attachments        Json?
+  direction          EmailDirection @default(OUTBOUND)
+  folder             EmailFolder    @default(INBOX)
+  isRead             Boolean        @default(true)
+  isStarred          Boolean        @default(false)
+  inReplyToMessageId String?
+  sentAt             DateTime       @default(now())
+  createdAt          DateTime       @default(now())
+  syncedByUserId     String?
+  syncedByUser       User?          @relation(fields: [syncedByUserId], references: [id], onDelete: SetNull)
 
   @@index([contactId])
+  @@index([syncedByUserId, folder])
+  @@index([gmailThreadId])
 }
 
 model Meeting {

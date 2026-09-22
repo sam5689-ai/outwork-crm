@@ -38,6 +38,12 @@ const FEATURES: {
     description:
       "Flag contacts on the dashboard whose last email was outbound with no reply in 5+ days.",
   },
+  {
+    key: "inboxEnabled",
+    label: "Gmail-style inbox",
+    description:
+      "Adds an Inbox to the sidebar for browsing, replying to and organizing your connected Gmail account from inside the CRM.",
+  },
 ];
 
 export function GoogleFeaturesForm({

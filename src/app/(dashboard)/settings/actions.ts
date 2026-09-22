@@ -163,6 +163,7 @@ const GOOGLE_FEATURE_KEYS = [
   "importCalendarMeetings",
   "todaysMeetingsWidget",
   "followUpReminders",
+  "inboxEnabled",
 ] as const;
 
 export async function updateGoogleFeatures(formData: FormData) {
@@ -181,6 +182,7 @@ export async function updateGoogleFeatures(formData: FormData) {
   revalidatePath("/settings/integrations");
   revalidatePath("/dashboard");
   revalidatePath("/contacts", "layout");
+  revalidatePath("/inbox", "layout");
 }
 
 export type DemoDataState = { message: string } | undefined;

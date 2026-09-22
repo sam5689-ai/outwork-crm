@@ -3,7 +3,10 @@ import { prisma } from "@/lib/prisma";
 
 export const GOOGLE_SCOPES = [
   "https://www.googleapis.com/auth/userinfo.email",
-  "https://www.googleapis.com/auth/gmail.readonly",
+  // Read, label (star/archive/trash), and send mail - not just read-only,
+  // so the in-app inbox can manage messages, not just display them.
+  "https://www.googleapis.com/auth/gmail.modify",
+  "https://www.googleapis.com/auth/gmail.send",
   "https://www.googleapis.com/auth/calendar.events",
 ];
 

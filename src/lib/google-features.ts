@@ -6,6 +6,7 @@ export type GoogleFeatures = {
   importCalendarMeetings: boolean;
   todaysMeetingsWidget: boolean;
   followUpReminders: boolean;
+  inboxEnabled: boolean;
 };
 
 export const DEFAULT_GOOGLE_FEATURES: GoogleFeatures = {
@@ -14,6 +15,7 @@ export const DEFAULT_GOOGLE_FEATURES: GoogleFeatures = {
   importCalendarMeetings: false,
   todaysMeetingsWidget: false,
   followUpReminders: false,
+  inboxEnabled: false,
 };
 
 const SETTING_KEY = "googleFeatures";
@@ -36,6 +38,7 @@ export async function getGoogleFeatures(): Promise<GoogleFeatures> {
       value.todaysMeetingsWidget ?? DEFAULT_GOOGLE_FEATURES.todaysMeetingsWidget,
     followUpReminders:
       value.followUpReminders ?? DEFAULT_GOOGLE_FEATURES.followUpReminders,
+    inboxEnabled: value.inboxEnabled ?? DEFAULT_GOOGLE_FEATURES.inboxEnabled,
   };
 }
 

@@ -23,7 +23,12 @@ const FEATURE_LABELS: Record<string, string> = {
   importCalendarMeetings: "Import existing calendar meetings",
   todaysMeetingsWidget: "Today's meetings on the dashboard",
   followUpReminders: "Follow-up reminders",
+  inboxEnabled: "Gmail-style inbox",
 };
+
+function hasInboxScope(scope: string | null): boolean {
+  return Boolean(scope?.includes("gmail.modify"));
+}
 
 export default async function IntegrationsSettingsPage({
   searchParams,
@@ -96,15 +101,29 @@ export default async function IntegrationsSettingsPage({
                   Connected as {account.googleEmail}
                 </p>
               )}
+              {account && !hasInboxScope(account.scope) && (
+                <p className="mt-2 flex items-center gap-1.5 text-sm font-medium text-amber-600">
+                  <AlertTriangle className="h-4 w-4" />
+                  Reconnect to enable the inbox (adds send &amp; organize
+                  permissions)
+                </p>
+              )}
             </div>
           </div>
 
           {account ? (
-            <form action={disconnectGoogleAccount}>
-              <Button type="submit" variant="secondary">
-                Disconnect
-              </Button>
-            </form>
+            <div className="flex items-center gap-2">
+              {!hasInboxScope(account.scope) && (
+                <LinkButton href="/api/google/connect" variant="secondary">
+                  Reconnect
+                </LinkButton>
+              )}
+              <form action={disconnectGoogleAccount}>
+                <Button type="submit" variant="secondary">
+                  Disconnect
+                </Button>
+              </form>
+            </div>
           ) : (
             <LinkButton
               href="/api/google/connect"

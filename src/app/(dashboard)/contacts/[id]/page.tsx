@@ -5,9 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/session";
 import { getGoogleFeatures } from "@/lib/google-features";
 import { syncContactEmails } from "@/lib/gmail";
-import type { EmailAttachment } from "@/lib/gmail";
-import { sanitizeEmailHtml } from "@/lib/sanitize-email";
-import { looksLikeHtml, resolveInlineImageUrls } from "@/lib/email-content";
+import { resolveEmailHtml } from "@/lib/email-content";
 import { importContactMeetings } from "@/lib/google-calendar";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -31,26 +29,6 @@ import {
   rescheduleMeeting,
   cancelMeeting,
 } from "../actions";
-
-function resolveEmailHtml(email: {
-  bodyHtml: string | null;
-  body: string | null;
-  gmailMessageId: string | null;
-  attachments: unknown;
-}): string | null {
-  const rawHtml =
-    email.bodyHtml || (email.body && looksLikeHtml(email.body) ? email.body : null);
-  if (!rawHtml) return null;
-
-  const attachmentList = Array.isArray(email.attachments)
-    ? (email.attachments as EmailAttachment[])
-    : [];
-  const resolved = email.gmailMessageId
-    ? resolveInlineImageUrls(rawHtml, email.gmailMessageId, attachmentList)
-    : rawHtml;
-
-  return sanitizeEmailHtml(resolved);
-}
 
 export default async function ContactDetailPage({
   params,

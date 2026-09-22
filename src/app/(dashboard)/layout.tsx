@@ -1,5 +1,6 @@
 import { requireUser } from "@/lib/session";
 import { getBranding } from "@/lib/branding";
+import { getGoogleFeatures } from "@/lib/google-features";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 
 export default async function DashboardLayout({
@@ -7,7 +8,11 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [user, branding] = await Promise.all([requireUser(), getBranding()]);
+  const [user, branding, features] = await Promise.all([
+    requireUser(),
+    getBranding(),
+    getGoogleFeatures(),
+  ]);
 
   return (
     <DashboardShell
@@ -15,6 +20,7 @@ export default async function DashboardLayout({
       role={user.role}
       companyName={branding.companyName}
       logoUrl={branding.logoUrl}
+      inboxEnabled={features.inboxEnabled}
     >
       {children}
     </DashboardShell>

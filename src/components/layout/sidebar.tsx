@@ -9,6 +9,7 @@ import {
   Building2,
   UserSquare2,
   Briefcase,
+  Inbox,
   Settings,
   X,
 } from "lucide-react";
@@ -20,6 +21,8 @@ const navItems = [
   { href: "/candidates", label: "Candidates", icon: UserSquare2 },
   { href: "/jobs", label: "Jobs", icon: Briefcase },
 ];
+
+const inboxItem = { href: "/inbox", label: "Inbox", icon: Inbox };
 
 const settingsItem = { href: "/settings", label: "Settings", icon: Settings };
 
@@ -57,11 +60,13 @@ export function Sidebar({
   onClose,
   companyName = "Outwork CRM",
   logoUrl,
+  inboxEnabled = false,
 }: {
   mobileOpen?: boolean;
   onClose?: () => void;
   companyName?: string;
   logoUrl?: string | null;
+  inboxEnabled?: boolean;
 }) {
   const pathname = usePathname();
 
@@ -120,6 +125,13 @@ export function Sidebar({
               }
             />
           ))}
+          {inboxEnabled && (
+            <NavLink
+              {...inboxItem}
+              onNavigate={onClose}
+              active={pathname.startsWith(inboxItem.href)}
+            />
+          )}
         </nav>
 
         <div className="mt-4 border-t border-neutral-200 pt-4">
