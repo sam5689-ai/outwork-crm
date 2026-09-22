@@ -1,5 +1,6 @@
-import { Search, Menu } from "lucide-react";
+import { Menu } from "lucide-react";
 import { SignOutButton } from "./sign-out-button";
+import { GlobalSearch } from "./global-search";
 
 export function Topbar({
   name,
@@ -27,10 +28,7 @@ export function Topbar({
         <Menu className="h-5 w-5" />
       </button>
 
-      <div className="hidden items-center gap-2 rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm text-neutral-400 sm:flex sm:w-72">
-        <Search className="h-4 w-4" />
-        <span>Search contacts, clients, candidates...</span>
-      </div>
+      <GlobalSearch />
 
       <div className="flex items-center gap-3 sm:ml-auto">
         <div className="flex items-center gap-2 rounded-lg px-2 py-1.5">
