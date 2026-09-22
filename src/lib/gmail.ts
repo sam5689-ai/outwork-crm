@@ -1,6 +1,7 @@
 import { google, gmail_v1 } from "googleapis";
 import { prisma } from "@/lib/prisma";
 import { getUserGoogleClient } from "@/lib/google";
+import { resolveInlineImageUrls } from "@/lib/email-content";
 import type { Contact } from "@/generated/prisma/client";
 
 export type EmailAttachment = {
@@ -78,25 +79,6 @@ function extractContent(
 }
 
 /**
- * Rewrites cid: references in an email's HTML body (used for inline images
- * like logos and signatures) to point at our attachment-proxy route, so the
- * browser can load them without direct Gmail API access.
- */
-function inlineAttachmentUrls(
-  html: string,
-  messageId: string,
-  attachments: EmailAttachment[]
-): string {
-  let result = html;
-  for (const att of attachments) {
-    if (!att.contentId) continue;
-    const src = `/api/gmail/attachments/${messageId}/${att.attachmentId}`;
-    result = result.split(`cid:${att.contentId}`).join(src);
-  }
-  return result;
-}
-
-/**
  * Pulls Gmail messages to/from the contact's email address for the given
  * user's connected Google account, and saves any not already synced.
  * Returns the newly-created EmailMessage rows (empty if nothing new, or
@@ -154,7 +136,7 @@ export async function syncContactEmails(userId: string, contact: Contact) {
 
       const { text, html, attachments } = extractContent(message.payload);
       const bodyHtml = html
-        ? inlineAttachmentUrls(html, message.id, attachments)
+        ? resolveInlineImageUrls(html, message.id, attachments)
         : null;
 
       const row = await prisma.emailMessage.create({

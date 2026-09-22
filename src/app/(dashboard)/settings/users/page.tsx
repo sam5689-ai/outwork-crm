@@ -45,7 +45,7 @@ export default async function UsersSettingsPage() {
                 );
                 const isSelf = user.id === admin.id;
                 return (
-                  <tr key={user.id}>
+                  <tr key={user.id} className="hover:bg-neutral-50/60">
                     <td className="px-4 py-3 font-medium text-neutral-900">
                       {user.name}
                       {isSelf && (

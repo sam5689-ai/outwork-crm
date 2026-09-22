@@ -20,6 +20,43 @@ const candidateSchema = z.object({
 });
 
 export type CandidateFormState = { error?: string } | undefined;
+export type ResumeFormState = { error?: string } | undefined;
+
+const MAX_RESUME_BYTES = 8 * 1024 * 1024;
+const ALLOWED_RESUME_TYPES = new Set([
+  "application/pdf",
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+]);
+
+type ParsedResumeFile = {
+  filename: string;
+  mimeType: string;
+  data: Uint8Array<ArrayBuffer>;
+};
+
+async function parseResumeFile(
+  formData: FormData
+): Promise<
+  { ok: true; file: ParsedResumeFile | null } | { ok: false; error: string }
+> {
+  const file = formData.get("resume");
+  if (!(file instanceof File) || file.size === 0) {
+    return { ok: true, file: null };
+  }
+  if (file.size > MAX_RESUME_BYTES) {
+    return { ok: false, error: "Resume file is too large (max 8MB)." };
+  }
+  if (!ALLOWED_RESUME_TYPES.has(file.type)) {
+    return { ok: false, error: "Resume must be a PDF or Word document." };
+  }
+
+  const data = new Uint8Array(await file.arrayBuffer());
+  return {
+    ok: true,
+    file: { filename: file.name, mimeType: file.type, data },
+  };
+}
 
 export async function createCandidate(
   _prevState: CandidateFormState,
@@ -41,10 +78,18 @@ export async function createCandidate(
     return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
 
+  const resumeResult = await parseResumeFile(formData);
+  if (!resumeResult.ok) {
+    return { error: resumeResult.error };
+  }
+
   const candidate = await prisma.candidate.create({
     data: {
       skills: parsed.data.skills || null,
       resumeNotes: parsed.data.resumeNotes || null,
+      resumeFilename: resumeResult.file?.filename,
+      resumeMimeType: resumeResult.file?.mimeType,
+      resumeData: resumeResult.file?.data,
       contact: {
         create: {
           firstName: parsed.data.firstName,
@@ -108,6 +153,45 @@ export async function updateCandidateProfile(
       skills: skills || null,
       resumeNotes: resumeNotes || null,
     },
+  });
+
+  revalidatePath(`/candidates/${candidateId}`);
+}
+
+export async function uploadResume(
+  candidateId: string,
+  _prevState: ResumeFormState,
+  formData: FormData
+): Promise<ResumeFormState> {
+  await requireUser();
+
+  const result = await parseResumeFile(formData);
+  if (!result.ok) {
+    return { error: result.error };
+  }
+  if (!result.file) {
+    return { error: "Choose a PDF or Word document to upload." };
+  }
+
+  await prisma.candidate.update({
+    where: { id: candidateId },
+    data: {
+      resumeFilename: result.file.filename,
+      resumeMimeType: result.file.mimeType,
+      resumeData: result.file.data,
+    },
+  });
+
+  revalidatePath(`/candidates/${candidateId}`);
+  return undefined;
+}
+
+export async function removeResume(candidateId: string) {
+  await requireUser();
+
+  await prisma.candidate.update({
+    where: { id: candidateId },
+    data: { resumeFilename: null, resumeMimeType: null, resumeData: null },
   });
 
   revalidatePath(`/candidates/${candidateId}`);

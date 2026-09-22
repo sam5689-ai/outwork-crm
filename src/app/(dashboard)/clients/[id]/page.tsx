@@ -144,7 +144,7 @@ export default async function ClientDetailPage({
                         {job.matches.map((match) => (
                           <li
                             key={match.id}
-                            className="flex items-center justify-between rounded-lg bg-neutral-50 px-3 py-2"
+                            className="flex items-center justify-between rounded-lg bg-neutral-50 px-3 py-2 transition-colors hover:bg-neutral-100"
                           >
                             <Link
                               href={`/candidates/${match.candidate.id}`}

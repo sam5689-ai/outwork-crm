@@ -48,6 +48,18 @@ export function CandidateForm({
       <FormField label="Resume / experience notes" htmlFor="resumeNotes">
         <Textarea id="resumeNotes" name="resumeNotes" rows={4} />
       </FormField>
+      <FormField label="Resume file" htmlFor="resume">
+        <input
+          type="file"
+          id="resume"
+          name="resume"
+          accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+          className="w-full text-sm text-neutral-500 file:mr-3 file:rounded-lg file:border-0 file:bg-neutral-100 file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-neutral-700 hover:file:bg-neutral-200"
+        />
+        <p className="mt-1 text-xs text-neutral-400">
+          Optional. PDF or Word document, up to 8MB.
+        </p>
+      </FormField>
       <FormField label="Notes" htmlFor="notes">
         <Textarea id="notes" name="notes" rows={3} />
       </FormField>

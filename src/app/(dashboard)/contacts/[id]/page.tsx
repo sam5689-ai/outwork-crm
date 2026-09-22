@@ -5,7 +5,9 @@ import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/session";
 import { getGoogleFeatures } from "@/lib/google-features";
 import { syncContactEmails } from "@/lib/gmail";
+import type { EmailAttachment } from "@/lib/gmail";
 import { sanitizeEmailHtml } from "@/lib/sanitize-email";
+import { looksLikeHtml, resolveInlineImageUrls } from "@/lib/email-content";
 import { importContactMeetings } from "@/lib/google-calendar";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -29,6 +31,26 @@ import {
   rescheduleMeeting,
   cancelMeeting,
 } from "../actions";
+
+function resolveEmailHtml(email: {
+  bodyHtml: string | null;
+  body: string | null;
+  gmailMessageId: string | null;
+  attachments: unknown;
+}): string | null {
+  const rawHtml =
+    email.bodyHtml || (email.body && looksLikeHtml(email.body) ? email.body : null);
+  if (!rawHtml) return null;
+
+  const attachmentList = Array.isArray(email.attachments)
+    ? (email.attachments as EmailAttachment[])
+    : [];
+  const resolved = email.gmailMessageId
+    ? resolveInlineImageUrls(rawHtml, email.gmailMessageId, attachmentList)
+    : rawHtml;
+
+  return sanitizeEmailHtml(resolved);
+}
 
 export default async function ContactDetailPage({
   params,
@@ -287,52 +309,53 @@ export default async function ContactDetailPage({
               </p>
             ) : (
               <ul className="divide-y divide-neutral-50">
-                {contact.emails.map((email) => (
-                  <li key={email.id} className="py-3">
-                    <div className="flex items-center justify-between gap-2">
-                      <p className="text-sm font-medium text-neutral-700">
-                        {email.subject}
-                      </p>
-                      <div className="flex shrink-0 items-center gap-2">
-                        <Badge
-                          className={
-                            email.direction === "INBOUND"
-                              ? "bg-blue-50 text-blue-700"
-                              : "bg-neutral-100 text-neutral-600"
-                          }
-                        >
-                          {email.direction === "INBOUND" ? "Received" : "Sent"}
-                        </Badge>
-                        <span className="text-xs text-neutral-400">
-                          {email.sentAt.toLocaleDateString()}
-                        </span>
-                      </div>
-                    </div>
-                    {email.body || email.bodyHtml ? (
-                      <details className="mt-1">
-                        <summary className="cursor-pointer text-xs text-neutral-500 hover:text-neutral-700">
-                          {email.snippet || "View email"}
-                        </summary>
-                        <EmailBody
-                          html={
-                            email.bodyHtml
-                              ? sanitizeEmailHtml(email.bodyHtml)
-                              : null
-                          }
-                          text={email.body}
-                          attachments={email.attachments}
-                          messageId={email.gmailMessageId}
-                        />
-                      </details>
-                    ) : (
-                      email.snippet && (
-                        <p className="mt-1 text-xs text-neutral-500">
-                          {email.snippet}
+                {contact.emails.map((email) => {
+                  const resolvedHtml = resolveEmailHtml(email);
+                  return (
+                    <li key={email.id} className="py-3">
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="text-sm font-medium text-neutral-700">
+                          {email.subject}
                         </p>
-                      )
-                    )}
-                  </li>
-                ))}
+                        <div className="flex shrink-0 items-center gap-2">
+                          <Badge
+                            className={
+                              email.direction === "INBOUND"
+                                ? "bg-blue-50 text-blue-700"
+                                : "bg-neutral-100 text-neutral-600"
+                            }
+                          >
+                            {email.direction === "INBOUND"
+                              ? "Received"
+                              : "Sent"}
+                          </Badge>
+                          <span className="text-xs text-neutral-400">
+                            {email.sentAt.toLocaleDateString()}
+                          </span>
+                        </div>
+                      </div>
+                      {email.body || email.bodyHtml ? (
+                        <details className="mt-1">
+                          <summary className="cursor-pointer text-xs text-neutral-500 hover:text-neutral-700">
+                            {email.snippet || "View email"}
+                          </summary>
+                          <EmailBody
+                            html={resolvedHtml}
+                            text={resolvedHtml ? null : email.body}
+                            attachments={email.attachments}
+                            messageId={email.gmailMessageId}
+                          />
+                        </details>
+                      ) : (
+                        email.snippet && (
+                          <p className="mt-1 text-xs text-neutral-500">
+                            {email.snippet}
+                          </p>
+                        )
+                      )}
+                    </li>
+                  );
+                })}
               </ul>
             )}
           </Card>

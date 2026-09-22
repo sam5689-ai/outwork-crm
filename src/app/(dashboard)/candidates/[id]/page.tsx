@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { FormField, Textarea, Input } from "@/components/ui/field";
 import { StageSelect } from "@/components/ui/stage-select";
+import { ResumeUpload } from "@/components/candidates/resume-upload";
 import {
   CANDIDATE_STAGES,
   CANDIDATE_STAGE_LABELS,
@@ -15,6 +16,8 @@ import {
 import {
   updateCandidateStage,
   updateCandidateProfile,
+  uploadResume,
+  removeResume,
   proposeMatch,
   updateMatchStatus,
 } from "../actions";
@@ -48,6 +51,8 @@ export default async function CandidateDetailPage({
 
   const updateStageWithId = updateCandidateStage.bind(null, candidate.id);
   const updateProfileWithId = updateCandidateProfile.bind(null, candidate.id);
+  const uploadResumeWithId = uploadResume.bind(null, candidate.id);
+  const removeResumeWithId = removeResume.bind(null, candidate.id);
   const proposeMatchWithId = proposeMatch.bind(null, candidate.id);
 
   return (
@@ -103,6 +108,22 @@ export default async function CandidateDetailPage({
               Save profile
             </Button>
           </form>
+
+          <div className="mt-6 border-t border-neutral-200 pt-4">
+            <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-500">
+              Resume
+            </h3>
+            <ResumeUpload
+              uploadAction={uploadResumeWithId}
+              removeAction={removeResumeWithId}
+              resume={
+                candidate.resumeFilename
+                  ? { filename: candidate.resumeFilename, sizeBytes: 0 }
+                  : null
+              }
+              downloadHref={`/api/candidates/${candidate.id}/resume`}
+            />
+          </div>
         </Card>
 
         <Card className="lg:col-span-2">
@@ -148,7 +169,7 @@ export default async function CandidateDetailPage({
                 return (
                   <li
                     key={match.id}
-                    className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-neutral-200 px-3 py-2.5"
+                    className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-neutral-200 px-3 py-2.5 transition-colors hover:bg-neutral-50"
                   >
                     <div>
                       <Link

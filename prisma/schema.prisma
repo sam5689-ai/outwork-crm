@@ -49,15 +49,15 @@ enum EmailDirection {
 }
 
 model User {
-  id            String         @id @default(cuid())
-  username      String         @unique
-  email         String         @unique
-  name          String
-  passwordHash  String
-  role          Role           @default(USER)
-  active        Boolean        @default(true)
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
+  id           String   @id @default(cuid())
+  username     String   @unique
+  email        String   @unique
+  name         String
+  passwordHash String
+  role         Role     @default(USER)
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   contacts      Contact[]      @relation("ContactOwner")
   activities    Activity[]
@@ -79,17 +79,17 @@ model GoogleAccount {
 }
 
 model Contact {
-  id        String    @id @default(cuid())
+  id        String   @id @default(cuid())
   firstName String
   lastName  String
   email     String?
   phone     String?
   company   String?
-  notes     String?   @db.Text
+  notes     String?  @db.Text
   ownerId   String
-  owner     User      @relation("ContactOwner", fields: [ownerId], references: [id])
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  owner     User     @relation("ContactOwner", fields: [ownerId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   client     Client?
   candidate  Candidate?
@@ -131,14 +131,17 @@ model Job {
 }
 
 model Candidate {
-  id           String         @id @default(cuid())
-  contactId    String         @unique
-  contact      Contact        @relation(fields: [contactId], references: [id], onDelete: Cascade)
-  stage        CandidateStage @default(SOURCED)
-  skills       String?
-  resumeNotes  String?        @db.Text
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
+  id             String         @id @default(cuid())
+  contactId      String         @unique
+  contact        Contact        @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  stage          CandidateStage @default(SOURCED)
+  skills         String?
+  resumeNotes    String?        @db.Text
+  resumeFilename String?
+  resumeMimeType String?
+  resumeData     Bytes?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
 
   matches CandidateMatch[]
 
@@ -161,38 +164,38 @@ model CandidateMatch {
 }
 
 model EmailMessage {
-  id              String         @id @default(cuid())
-  contactId       String
-  contact         Contact        @relation(fields: [contactId], references: [id], onDelete: Cascade)
-  gmailMessageId  String?        @unique
-  gmailThreadId   String?
-  subject         String
-  fromAddress     String
-  toAddress       String
-  snippet         String?
-  body            String?        @db.Text
-  bodyHtml        String?        @db.Text
-  attachments     Json?
-  direction       EmailDirection @default(OUTBOUND)
-  sentAt          DateTime       @default(now())
-  createdAt       DateTime       @default(now())
-  syncedByUserId  String?
-  syncedByUser    User?          @relation(fields: [syncedByUserId], references: [id], onDelete: SetNull)
+  id             String         @id @default(cuid())
+  contactId      String
+  contact        Contact        @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  gmailMessageId String?        @unique
+  gmailThreadId  String?
+  subject        String
+  fromAddress    String
+  toAddress      String
+  snippet        String?
+  body           String?        @db.Text
+  bodyHtml       String?        @db.Text
+  attachments    Json?
+  direction      EmailDirection @default(OUTBOUND)
+  sentAt         DateTime       @default(now())
+  createdAt      DateTime       @default(now())
+  syncedByUserId String?
+  syncedByUser   User?          @relation(fields: [syncedByUserId], references: [id], onDelete: SetNull)
 
   @@index([contactId])
 }
 
 model Meeting {
-  id             String   @id @default(cuid())
+  id             String    @id @default(cuid())
   contactId      String
-  contact        Contact  @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  contact        Contact   @relation(fields: [contactId], references: [id], onDelete: Cascade)
   title          String
-  googleEventId  String?  @unique
+  googleEventId  String?   @unique
   meetLink       String?
   scheduledStart DateTime
   scheduledEnd   DateTime?
-  notes          String?  @db.Text
-  createdAt      DateTime @default(now())
+  notes          String?   @db.Text
+  createdAt      DateTime  @default(now())
 
   @@index([contactId])
 }
