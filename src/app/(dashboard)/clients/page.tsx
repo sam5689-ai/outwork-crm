@@ -2,6 +2,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { PageHeader } from "@/components/ui/page-header";
 import { StageSelect } from "@/components/ui/stage-select";
+import { Badge } from "@/components/ui/badge";
 import { CLIENT_STAGES, CLIENT_STAGE_LABELS } from "@/lib/stages";
 import { updateClientStage } from "./actions";
 
@@ -19,8 +20,8 @@ export default async function ClientsPage() {
   return (
     <div>
       <PageHeader
-        title="Deals"
-        description="Track each deal from first interest through to a passed trial"
+        title="Clients"
+        description="Every company we place with. A client is landed when their first job is filled"
       />
 
       <div className="flex gap-4 overflow-x-auto pb-4">
@@ -40,6 +41,13 @@ export default async function ClientsPage() {
                   null,
                   client.id
                 );
+                const filledCount = client.jobs.filter(
+                  (job) => job.stage === "FILLED_WON"
+                ).length;
+                const activeCount = client.jobs.filter(
+                  (job) =>
+                    job.stage !== "FILLED_WON" && job.stage !== "CANCELLED_LOST"
+                ).length;
                 return (
                   <div
                     key={client.id}
@@ -54,10 +62,19 @@ export default async function ClientsPage() {
                     <p className="mt-1 text-xs text-neutral-400">
                       {client.contact.firstName} {client.contact.lastName}
                     </p>
-                    <p className="mt-1 text-xs text-neutral-400">
-                      {client.jobs.length} job
-                      {client.jobs.length === 1 ? "" : "s"}
-                    </p>
+                    <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
+                      {filledCount > 0 && (
+                        <Badge className="bg-emerald-50 text-emerald-700">
+                          Landed
+                        </Badge>
+                      )}
+                      <span className="rounded-full bg-neutral-100 px-2 py-0.5 font-semibold text-neutral-600">
+                        {filledCount} filled
+                      </span>
+                      <span className="text-neutral-400">
+                        {activeCount} active job{activeCount === 1 ? "" : "s"}
+                      </span>
+                    </div>
                     <div className="mt-3">
                       <StageSelect
                         action={updateStageWithId}
@@ -76,7 +93,7 @@ export default async function ClientsPage() {
                 <div
                   className={`rounded-xl border border-dashed border-neutral-200 p-4 text-center text-xs text-neutral-400`}
                 >
-                  No deals {CLIENT_STAGE_LABELS[stage].toLowerCase()}
+                  No clients {CLIENT_STAGE_LABELS[stage].toLowerCase()}
                 </div>
               )}
             </div>
@@ -86,7 +103,7 @@ export default async function ClientsPage() {
 
       {clients.length === 0 && (
         <p className="mt-6 text-sm text-neutral-400">
-          No deals yet. Convert a contact into a deal to get started, or{" "}
+          No clients yet. Convert a contact into a client to get started, or{" "}
           <Link href="/contacts/new" className="text-blue-600 hover:underline">
             add a new contact
           </Link>

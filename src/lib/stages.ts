@@ -37,7 +37,7 @@ export type CandidateStageValue = (typeof CANDIDATE_STAGES)[number];
 export const CANDIDATE_STAGE_LABELS: Record<CandidateStageValue, string> = {
   SOURCED: "Sourced",
   SUITABLE: "Suitable For Roles",
-  MATCHED: "Matched To Deal",
+  MATCHED: "Matched To Job",
   ACCEPTED: "Accepted",
   REJECTED: "Rejected",
 };

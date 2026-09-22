@@ -6,7 +6,7 @@ const daysAgo = (n: number) => new Date(Date.now() - n * 24 * 60 * 60 * 1000);
 const daysFromNow = (n: number) => new Date(Date.now() + n * 24 * 60 * 60 * 1000);
 
 /**
- * Populates the CRM with a believable set of sample deals, jobs (with
+ * Populates the CRM with a believable set of sample clients, jobs (with
  * openings, bill rates and margins), candidates and placements - covering
  * every job stage so the app doesn't show empty states. Safe to call
  * repeatedly: skips entirely if the demo data is already present.
@@ -33,7 +33,7 @@ export async function seedDemoData(
     return prisma.contact.create({ data: { ...data, ownerId: adminId } });
   }
 
-  // --- Deals (clients), one per pipeline stage ---
+  // --- Clients, one per pipeline stage ---
   const meredith = await makeContact({
     firstName: "Meredith",
     lastName: "Cole",
@@ -155,13 +155,32 @@ export async function seedDemoData(
     },
   });
 
-  // Fully filled job - demonstrates the FILLED_WON auto-transition
+  // Foundry's first filled job, a while back - this is when they were landed
+  const productionJob = await prisma.job.create({
+    data: {
+      clientId: foundry.id,
+      title: "Production Assistant",
+      description: "Shoot and studio support for a product campaign.",
+      stage: "FILLED_WON",
+      filledAt: daysAgo(45),
+      createdAt: daysAgo(60),
+      openingsCount: 1,
+      startDate: daysAgo(40),
+      billRate: 30,
+      targetPayRate: 21,
+      requiredSkills: ["Studio Production"],
+    },
+  });
+
+  // Fully filled repeat job for the same client - demonstrates the
+  // FILLED_WON auto-transition and counts as a repeat job, not a new client
   const designerJob = await prisma.job.create({
     data: {
       clientId: foundry.id,
       title: "Junior Designer",
       description: "In-house brand design, contract-to-hire.",
       stage: "FILLED_WON",
+      filledAt: daysAgo(2),
       openingsCount: 1,
       startDate: daysAgo(14),
       workHours: "Mon-Fri, 10:00 AM - 6:00 PM",
@@ -340,6 +359,14 @@ export async function seedDemoData(
       jobId: designerJob.id,
       status: "PLACED",
       agreedPayRate: 32,
+    },
+  });
+  await prisma.candidateMatch.create({
+    data: {
+      candidateId: islaCandidate.id,
+      jobId: productionJob.id,
+      status: "PLACED",
+      agreedPayRate: 21,
     },
   });
 

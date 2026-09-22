@@ -5,7 +5,7 @@ import { listCalendarEvents } from "@/lib/google-calendar";
 import { Card } from "@/components/ui/card";
 
 /**
- * Read-only "next 5 upcoming meetings" widget for a Deal/Candidate detail
+ * Read-only "next 5 upcoming meetings" widget for a Client/Candidate detail
  * page - looks up events on the current user's Google Calendar where the
  * linked contact's email is an attendee. Fails quietly (no Google
  * connected, API error) rather than breaking the page it's embedded in.

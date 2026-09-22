@@ -22,7 +22,7 @@ export default async function JobsPage() {
     <div>
       <PageHeader
         title="Jobs"
-        description="Every open role across all of your deals, tracked to a fill"
+        description="Every job across all of your clients, tracked to a fill"
       />
 
       <div className="flex gap-4 overflow-x-auto pb-4">
@@ -108,7 +108,7 @@ export default async function JobsPage() {
 
       {jobs.length === 0 && (
         <p className="mt-6 text-sm text-neutral-400">
-          No jobs yet. Open one from a deal&apos;s page.
+          No jobs yet. Open one from a client&apos;s page.
         </p>
       )}
     </div>

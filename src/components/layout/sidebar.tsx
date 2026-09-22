@@ -17,10 +17,10 @@ import {
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/contacts", label: "Contacts", icon: Contact2 },
-  { href: "/clients", label: "Deals", icon: Building2 },
-  { href: "/candidates", label: "Candidates", icon: UserSquare2 },
   { href: "/jobs", label: "Jobs", icon: Briefcase },
+  { href: "/clients", label: "Clients", icon: Building2 },
+  { href: "/candidates", label: "Candidates", icon: UserSquare2 },
+  { href: "/contacts", label: "Contacts", icon: Contact2 },
   { href: "/calendar", label: "Calendar", icon: CalendarDays },
 ];
 

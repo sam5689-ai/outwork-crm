@@ -31,7 +31,7 @@ export default async function GeneralSettingsPage() {
           Demo data
         </h2>
         <p className="mb-4 text-sm text-neutral-500">
-          Populate the CRM with sample deals, candidates, jobs and activity
+          Populate the CRM with sample clients, candidates, jobs and activity
           so you can see how everything looks. Safe to click more than
           once - it won&apos;t create duplicates.
         </p>

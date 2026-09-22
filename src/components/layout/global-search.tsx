@@ -10,7 +10,7 @@ type SearchResult = {
   name: string;
   company: string | null;
   email: string | null;
-  isDeal: boolean;
+  isClient: boolean;
   isCandidate: boolean;
 };
 
@@ -101,7 +101,7 @@ export function GlobalSearch() {
       <button
         type="button"
         onClick={openSearch}
-        aria-label="Search contacts, deals and candidates"
+        aria-label="Search contacts, clients and candidates"
         className="flex h-9 w-9 items-center justify-center rounded-lg text-neutral-500 transition hover:bg-neutral-50 hover:text-neutral-900"
       >
         <Search className="h-[18px] w-[18px]" />
@@ -119,7 +119,7 @@ export function GlobalSearch() {
             type="text"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search contacts, deals, candidates..."
+            placeholder="Search contacts, clients, candidates..."
             className="w-full text-sm text-neutral-900 outline-none placeholder:text-neutral-400"
           />
           <button
@@ -160,9 +160,9 @@ export function GlobalSearch() {
                   </span>
                 </span>
                 <span className="flex shrink-0 gap-1">
-                  {result.isDeal && (
+                  {result.isClient && (
                     <Badge className="bg-violet-50 text-violet-700">
-                      Deal
+                      Client
                     </Badge>
                   )}
                   {result.isCandidate && (

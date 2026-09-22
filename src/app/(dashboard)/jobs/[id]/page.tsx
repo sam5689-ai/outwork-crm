@@ -59,6 +59,17 @@ export default async function JobDetailPage({
             >
               {job.client.name}
             </Link>
+            {job.filledAt && (
+              <span className="text-emerald-600">
+                {" "}
+                · Filled{" "}
+                {job.filledAt.toLocaleDateString(undefined, {
+                  month: "short",
+                  day: "numeric",
+                  year: "numeric",
+                })}
+              </span>
+            )}
           </p>
         </div>
         <div className="flex items-center gap-2">

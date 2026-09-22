@@ -160,10 +160,16 @@ model Job {
   targetPayRate   Float?
   requiredSkills  String[] @default([])
 
+  // Set when the job enters FILLED_WON / CANCELLED_LOST, cleared if it's
+  // re-opened. These drive "jobs filled" and "clients landed" reporting.
+  filledAt    DateTime?
+  cancelledAt DateTime?
+
   matches CandidateMatch[]
 
   @@index([clientId])
   @@index([stage])
+  @@index([filledAt])
 }
 
 model Candidate {

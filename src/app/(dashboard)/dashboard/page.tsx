@@ -1,6 +1,15 @@
 import Link from "next/link";
-import { Contact2, Building2, UserSquare2, Briefcase, Video, Clock } from "lucide-react";
+import {
+  Contact2,
+  Building2,
+  UserSquare2,
+  Briefcase,
+  Video,
+  Clock,
+  CheckCircle2,
+} from "lucide-react";
 import { prisma } from "@/lib/prisma";
+import { getPlacementReport, reportingPeriods } from "@/lib/reporting";
 import { getGoogleFeatures } from "@/lib/google-features";
 import { Card } from "@/components/ui/card";
 import { StatCard } from "@/components/ui/stat-card";
@@ -23,10 +32,7 @@ const FOLLOW_UP_DAYS = 5;
 
 export default async function DashboardPage() {
   const now = new Date();
-  const startOfMonth = new Date(
-    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)
-  );
-  const startOfYear = new Date(Date.UTC(now.getUTCFullYear(), 0, 1));
+  const { startOfMonth } = reportingPeriods(now);
   const startOfDay = new Date(
     Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())
   );
@@ -41,40 +47,30 @@ export default async function DashboardPage() {
     contactCount,
     clientCount,
     candidateCount,
-    openJobCount,
+    activeJobCount,
     clientsByStage,
     candidatesByStage,
     jobsByStage,
-    dealsWonMonth,
-    dealsWonYear,
-    dealsLostMonth,
-    dealsLostYear,
-    newClientsMonth,
-    newClientsYear,
+    report,
+    jobsFilledThisMonth,
     todaysMeetings,
     contactsWithRecentEmail,
   ] = await Promise.all([
     prisma.contact.count(),
     prisma.client.count(),
     prisma.candidate.count(),
-    prisma.job.count({ where: { stage: "OPEN" } }),
+    prisma.job.count({
+      where: { stage: { notIn: ["FILLED_WON", "CANCELLED_LOST"] } },
+    }),
     prisma.client.groupBy({ by: ["stage"], _count: { _all: true } }),
     prisma.candidate.groupBy({ by: ["stage"], _count: { _all: true } }),
     prisma.job.groupBy({ by: ["stage"], _count: { _all: true } }),
-    prisma.client.count({
-      where: { stage: "TRIAL_PASSED", updatedAt: { gte: startOfMonth } },
+    getPlacementReport(now),
+    prisma.job.findMany({
+      where: { stage: "FILLED_WON", filledAt: { gte: startOfMonth } },
+      orderBy: { filledAt: "desc" },
+      include: { client: true },
     }),
-    prisma.client.count({
-      where: { stage: "TRIAL_PASSED", updatedAt: { gte: startOfYear } },
-    }),
-    prisma.client.count({
-      where: { stage: "LOST", updatedAt: { gte: startOfMonth } },
-    }),
-    prisma.client.count({
-      where: { stage: "LOST", updatedAt: { gte: startOfYear } },
-    }),
-    prisma.client.count({ where: { createdAt: { gte: startOfMonth } } }),
-    prisma.client.count({ where: { createdAt: { gte: startOfYear } } }),
     features.todaysMeetingsWidget
       ? prisma.meeting.findMany({
           where: { scheduledStart: { gte: startOfDay, lt: endOfDay } },
@@ -116,18 +112,60 @@ export default async function DashboardPage() {
     <div>
       <PageHeader
         title="Dashboard"
-        description="Overview of your contacts, deals and candidates"
+        description="Jobs filled and clients landed, plus everything in the pipeline"
       />
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-6">
+        <div className="sm:col-span-2">
+          <ReportCard
+            title="Jobs Filled"
+            thisMonth={report.jobsFilled.thisMonth}
+            yearToDate={report.jobsFilled.yearToDate}
+            tone="positive"
+            featured
+            detail={`${report.clientsLanded.thisMonth} new client${
+              report.clientsLanded.thisMonth === 1 ? "" : "s"
+            } · ${report.repeatJobsFilled.thisMonth} repeat this month`}
+          />
+        </div>
+        <ReportCard
+          title="Clients Landed"
+          thisMonth={report.clientsLanded.thisMonth}
+          yearToDate={report.clientsLanded.yearToDate}
+          tone="positive"
+          detail="First job filled for a new client"
+        />
+        <ReportCard
+          title="Repeat Jobs Filled"
+          thisMonth={report.repeatJobsFilled.thisMonth}
+          yearToDate={report.repeatJobsFilled.yearToDate}
+          detail="Filled for a client we'd already landed"
+        />
+        <ReportCard
+          title="New Jobs"
+          thisMonth={report.jobsOpened.thisMonth}
+          yearToDate={report.jobsOpened.yearToDate}
+          detail="Jobs opened"
+        />
+        <ReportCard
+          title="Jobs Lost"
+          thisMonth={report.jobsLost.thisMonth}
+          yearToDate={report.jobsLost.yearToDate}
+          tone="negative"
+          detail="Cancelled before being filled"
+        />
+      </div>
+
+      <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
-          label="Contacts"
-          value={contactCount}
-          icon={Contact2}
-          color="blue"
+          label="Active Jobs"
+          value={activeJobCount}
+          helpText="Not yet filled or lost"
+          icon={Briefcase}
+          color="amber"
         />
         <StatCard
-          label="Deals"
+          label="Clients"
           value={clientCount}
           icon={Building2}
           color="violet"
@@ -139,37 +177,73 @@ export default async function DashboardPage() {
           color="emerald"
         />
         <StatCard
-          label="Open Jobs"
-          value={openJobCount}
-          icon={Briefcase}
-          color="amber"
+          label="Contacts"
+          value={contactCount}
+          icon={Contact2}
+          color="blue"
         />
       </div>
 
-      <div className="mt-6">
-        <h2 className="mb-3 text-sm font-semibold text-neutral-900">
-          Reporting
-        </h2>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <ReportCard
-            title="Deals Won"
-            thisMonth={dealsWonMonth}
-            yearToDate={dealsWonYear}
-            tone="positive"
-          />
-          <ReportCard
-            title="Deals Lost"
-            thisMonth={dealsLostMonth}
-            yearToDate={dealsLostYear}
-            tone="negative"
-          />
-          <ReportCard
-            title="New Deals"
-            thisMonth={newClientsMonth}
-            yearToDate={newClientsYear}
-          />
+      <Card className="mt-6">
+        <div className="mb-4 flex items-center gap-2">
+          <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+          <h2 className="text-sm font-semibold text-neutral-900">
+            Filled This Month
+          </h2>
         </div>
-      </div>
+        {jobsFilledThisMonth.length === 0 ? (
+          <p className="py-4 text-center text-sm text-neutral-400">
+            No jobs filled yet this month.
+          </p>
+        ) : (
+          <ul className="divide-y divide-neutral-50">
+            {jobsFilledThisMonth.map((job) => {
+              const landedAt = report.landedAtByClient.get(job.clientId);
+              const isNewClient =
+                landedAt != null &&
+                job.filledAt != null &&
+                landedAt.getTime() === job.filledAt.getTime();
+              return (
+                <li
+                  key={job.id}
+                  className="-mx-2 flex items-center justify-between gap-2 rounded-lg px-2 py-2.5 transition-colors hover:bg-neutral-50"
+                >
+                  <div className="min-w-0">
+                    <Link
+                      href={`/jobs/${job.id}`}
+                      className="text-sm font-medium text-neutral-800 hover:text-blue-600"
+                    >
+                      {job.title}
+                    </Link>
+                    <p className="text-xs text-neutral-400">
+                      <Link
+                        href={`/clients/${job.clientId}`}
+                        className="hover:text-blue-600"
+                      >
+                        {job.client.name}
+                      </Link>
+                      {job.filledAt &&
+                        ` · ${job.filledAt.toLocaleDateString(undefined, {
+                          month: "short",
+                          day: "numeric",
+                        })}`}
+                    </p>
+                  </div>
+                  <Badge
+                    className={
+                      isNewClient
+                        ? "bg-emerald-50 text-emerald-700"
+                        : "bg-blue-50 text-blue-700"
+                    }
+                  >
+                    {isNewClient ? "New client" : "Repeat client"}
+                  </Badge>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </Card>
 
       {(features.todaysMeetingsWidget || features.followUpReminders) && (
         <div className="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-2">
@@ -286,7 +360,7 @@ export default async function DashboardPage() {
         <Card>
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-sm font-semibold text-neutral-900">
-              Deal Pipeline
+              Client Pipeline
             </h2>
             <Link
               href="/clients"
