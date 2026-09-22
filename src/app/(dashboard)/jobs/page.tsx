@@ -15,13 +15,13 @@ export default async function JobsPage() {
     <div>
       <PageHeader
         title="Jobs"
-        description="Every open role across all of your clients"
+        description="Every open role across all of your deals"
       />
 
       <Card className="p-0">
         {jobs.length === 0 ? (
           <p className="p-8 text-center text-sm text-neutral-400">
-            No jobs yet. Open a job from a client&apos;s page.
+            No jobs yet. Open a job from a deal&apos;s page.
           </p>
         ) : (
           <div className="overflow-x-auto">
@@ -29,7 +29,7 @@ export default async function JobsPage() {
               <thead>
                 <tr className="border-b border-neutral-200 text-xs uppercase tracking-wide text-neutral-400">
                   <th className="px-4 py-3 font-semibold">Job</th>
-                  <th className="px-4 py-3 font-semibold">Client</th>
+                  <th className="px-4 py-3 font-semibold">Deal</th>
                   <th className="px-4 py-3 font-semibold">Status</th>
                   <th className="px-4 py-3 font-semibold">Matches</th>
                 </tr>

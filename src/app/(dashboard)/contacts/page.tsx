@@ -32,7 +32,7 @@ export default async function ContactsPage({
     <div>
       <PageHeader
         title="Contacts"
-        description="Everyone you've connected with, before they're a client or candidate"
+        description="Everyone you've connected with, before they're a deal or candidate"
         actions={
           <LinkButton href="/contacts/new">
             <Plus className="h-4 w-4" />
@@ -92,7 +92,7 @@ export default async function ContactsPage({
                       <div className="flex flex-wrap gap-1">
                         {contact.client && (
                           <Badge className="bg-violet-50 text-violet-700">
-                            Client
+                            Deal
                           </Badge>
                         )}
                         {contact.candidate && (

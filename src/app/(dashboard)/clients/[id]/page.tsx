@@ -81,7 +81,7 @@ export default async function ClientDetailPage({
 
         {client.jobs.length === 0 ? (
           <p className="py-6 text-center text-sm text-neutral-400">
-            No jobs yet for this client.
+            No jobs yet for this deal.
           </p>
         ) : (
           <div className="space-y-4">

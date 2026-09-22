@@ -108,7 +108,7 @@ export default async function DashboardPage() {
     <div>
       <PageHeader
         title="Dashboard"
-        description="Overview of your contacts, clients and candidates"
+        description="Overview of your contacts, deals and candidates"
       />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -119,7 +119,7 @@ export default async function DashboardPage() {
           color="blue"
         />
         <StatCard
-          label="Clients"
+          label="Deals"
           value={clientCount}
           icon={Building2}
           color="violet"
@@ -156,7 +156,7 @@ export default async function DashboardPage() {
             tone="negative"
           />
           <ReportCard
-            title="New Clients"
+            title="New Deals"
             thisMonth={newClientsMonth}
             yearToDate={newClientsYear}
           />
@@ -250,7 +250,7 @@ export default async function DashboardPage() {
         <Card>
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-sm font-semibold text-neutral-900">
-              Client Pipeline
+              Deal Pipeline
             </h2>
             <Link
               href="/clients"

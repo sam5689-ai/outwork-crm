@@ -186,7 +186,7 @@ export default async function ContactDetailPage({
             <div className="space-y-4">
               <div>
                 <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-neutral-400">
-                  Client
+                  Deal
                 </p>
                 {contact.client ? (
                   <Link

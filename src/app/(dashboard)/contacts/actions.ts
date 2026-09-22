@@ -113,7 +113,7 @@ export async function convertToClient(contactId: string, formData: FormData) {
     data: {
       contactId,
       authorId: user.id,
-      body: `Converted to client "${companyName}".`,
+      body: `Converted to deal "${companyName}".`,
     },
   });
 

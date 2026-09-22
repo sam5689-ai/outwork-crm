@@ -19,8 +19,8 @@ export default async function ClientsPage() {
   return (
     <div>
       <PageHeader
-        title="Clients"
-        description="Track each client from first interest through to a passed trial"
+        title="Deals"
+        description="Track each deal from first interest through to a passed trial"
       />
 
       <div className="flex gap-4 overflow-x-auto pb-4">
@@ -76,7 +76,7 @@ export default async function ClientsPage() {
                 <div
                   className={`rounded-xl border border-dashed border-neutral-200 p-4 text-center text-xs text-neutral-400`}
                 >
-                  No clients {CLIENT_STAGE_LABELS[stage].toLowerCase()}
+                  No deals {CLIENT_STAGE_LABELS[stage].toLowerCase()}
                 </div>
               )}
             </div>
@@ -86,7 +86,7 @@ export default async function ClientsPage() {
 
       {clients.length === 0 && (
         <p className="mt-6 text-sm text-neutral-400">
-          No clients yet. Convert a contact into a client to get started, or{" "}
+          No deals yet. Convert a contact into a deal to get started, or{" "}
           <Link href="/contacts/new" className="text-blue-600 hover:underline">
             add a new contact
           </Link>
