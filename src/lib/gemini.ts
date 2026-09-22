@@ -16,7 +16,7 @@ export async function generateJobPost(input: {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) throw new Error("Gemini is not configured");
 
-  const model = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+  const model = process.env.GEMINI_MODEL || "gemini-3.6-flash";
   const context = [
     input.clientName ? `Client: ${input.clientName}` : null,
     input.industry ? `Industry: ${input.industry}` : null,
