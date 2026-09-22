@@ -14,6 +14,9 @@ import {
   CANDIDATE_STAGES,
   CANDIDATE_STAGE_LABELS,
   CANDIDATE_STAGE_COLORS,
+  JOB_STAGES,
+  JOB_STAGE_LABELS,
+  JOB_STAGE_COLORS,
 } from "@/lib/stages";
 
 const FOLLOW_UP_DAYS = 5;
@@ -41,6 +44,7 @@ export default async function DashboardPage() {
     openJobCount,
     clientsByStage,
     candidatesByStage,
+    jobsByStage,
     dealsWonMonth,
     dealsWonYear,
     dealsLostMonth,
@@ -53,9 +57,10 @@ export default async function DashboardPage() {
     prisma.contact.count(),
     prisma.client.count(),
     prisma.candidate.count(),
-    prisma.job.count({ where: { status: "OPEN" } }),
+    prisma.job.count({ where: { stage: "OPEN" } }),
     prisma.client.groupBy({ by: ["stage"], _count: { _all: true } }),
     prisma.candidate.groupBy({ by: ["stage"], _count: { _all: true } }),
+    prisma.job.groupBy({ by: ["stage"], _count: { _all: true } }),
     prisma.client.count({
       where: { stage: "TRIAL_PASSED", updatedAt: { gte: startOfMonth } },
     }),
@@ -91,6 +96,9 @@ export default async function DashboardPage() {
   );
   const candidateStageCounts = Object.fromEntries(
     candidatesByStage.map((row) => [row.stage, row._count._all])
+  );
+  const jobStageCounts = Object.fromEntries(
+    jobsByStage.map((row) => [row.stage, row._count._all])
   );
 
   const needsFollowUp = contactsWithRecentEmail
@@ -246,7 +254,35 @@ export default async function DashboardPage() {
         </div>
       )}
 
-      <div className="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-2">
+      <div className="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-3">
+        <Card>
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-sm font-semibold text-neutral-900">
+              Job Pipeline
+            </h2>
+            <Link
+              href="/jobs"
+              className="text-xs font-semibold text-blue-600 hover:underline"
+            >
+              View all
+            </Link>
+          </div>
+          <div className="space-y-3">
+            {JOB_STAGES.filter((stage) => stage !== "CANCELLED_LOST").map(
+              (stage) => (
+                <div key={stage} className="flex items-center justify-between">
+                  <Badge className={JOB_STAGE_COLORS[stage]}>
+                    {JOB_STAGE_LABELS[stage]}
+                  </Badge>
+                  <span className="text-sm font-semibold text-neutral-700">
+                    {jobStageCounts[stage] ?? 0}
+                  </span>
+                </div>
+              )
+            )}
+          </div>
+        </Card>
+
         <Card>
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-sm font-semibold text-neutral-900">

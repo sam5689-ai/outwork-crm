@@ -172,7 +172,7 @@ export default async function ContactDetailPage({
                     className="flex items-center justify-between rounded-lg border border-neutral-200 px-3 py-2 hover:border-blue-300"
                   >
                     <span className="text-sm font-medium text-neutral-700">
-                      {contact.client.companyName}
+                      {contact.client.name}
                     </span>
                     <Badge className={CLIENT_STAGE_COLORS[contact.client.stage]}>
                       {CLIENT_STAGE_LABELS[contact.client.stage]}

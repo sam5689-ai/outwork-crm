@@ -49,7 +49,7 @@ export default async function ClientsPage() {
                       href={`/clients/${client.id}`}
                       className="font-semibold text-neutral-900 hover:text-blue-600"
                     >
-                      {client.companyName}
+                      {client.name}
                     </Link>
                     <p className="mt-1 text-xs text-neutral-400">
                       {client.contact.firstName} {client.contact.lastName}

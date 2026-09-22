@@ -31,15 +31,21 @@ enum CandidateStage {
   REJECTED
 }
 
-enum JobStatus {
+enum JobStage {
   OPEN
-  ON_HOLD
-  CLOSED
+  MATCHING
+  CLIENT_REVIEW
+  SCHEDULED
+  FILLED_WON
+  CANCELLED_LOST
 }
 
 enum MatchStatus {
-  PROPOSED
-  ACCEPTED
+  SUGGESTED
+  OUTREACHED
+  CLIENT_REVIEW
+  SCHEDULED
+  PLACED
   REJECTED
 }
 
@@ -113,10 +119,24 @@ model Client {
   id          String      @id @default(cuid())
   contactId   String      @unique
   contact     Contact     @relation(fields: [contactId], references: [id], onDelete: Cascade)
-  companyName String
+  name        String
   stage       ClientStage @default(INTERESTED)
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
+
+  email          String?
+  website        String?
+  industry       String?
+  employeeCount  Int?
+  workHours      String?
+  payRate        Float?
+  payUnit        String   @default("hourly")
+
+  street  String?
+  city    String?
+  state   String?
+  zipCode String?
+  country String? @default("US")
 
   jobs Job[]
 
@@ -124,18 +144,26 @@ model Client {
 }
 
 model Job {
-  id          String    @id @default(cuid())
+  id          String   @id @default(cuid())
   clientId    String
-  client      Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  client      Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
   title       String
-  description String?   @db.Text
-  status      JobStatus @default(OPEN)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  description String?  @db.Text
+  stage       JobStage @default(OPEN)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  openingsCount   Int      @default(1)
+  startDate       DateTime?
+  workHours       String?
+  billRate        Float?
+  targetPayRate   Float?
+  requiredSkills  String[] @default([])
 
   matches CandidateMatch[]
 
   @@index([clientId])
+  @@index([stage])
 }
 
 model Candidate {
@@ -151,9 +179,20 @@ model Candidate {
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
 
+  agreedPay          Float?
+  payUnit            String    @default("hourly")
+  education          String?
+  availableFrom      DateTime?
+  availabilityNote   String?
+  availabilityStatus String    @default("Available")
+
+  city  String?
+  state String?
+
   matches CandidateMatch[]
 
   @@index([stage])
+  @@index([availabilityStatus])
 }
 
 model CandidateMatch {
@@ -162,7 +201,8 @@ model CandidateMatch {
   candidate   Candidate   @relation(fields: [candidateId], references: [id], onDelete: Cascade)
   jobId       String
   job         Job         @relation(fields: [jobId], references: [id], onDelete: Cascade)
-  status      MatchStatus @default(PROPOSED)
+  status      MatchStatus @default(SUGGESTED)
+  agreedPayRate Float?
   notes       String?     @db.Text
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt

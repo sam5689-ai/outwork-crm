@@ -100,20 +100,20 @@ export async function convertToClient(contactId: string, formData: FormData) {
   const contact = await prisma.contact.findUniqueOrThrow({
     where: { id: contactId },
   });
-  const companyName =
+  const name =
     formData.get("companyName")?.toString().trim() ||
     contact.company ||
     `${contact.firstName} ${contact.lastName}`;
 
   await prisma.client.create({
-    data: { contactId, companyName },
+    data: { contactId, name, email: contact.email },
   });
 
   await prisma.activity.create({
     data: {
       contactId,
       authorId: user.id,
-      body: `Converted to deal "${companyName}".`,
+      body: `Converted to deal "${name}".`,
     },
   });
 

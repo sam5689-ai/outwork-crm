@@ -6,9 +6,9 @@ const daysAgo = (n: number) => new Date(Date.now() - n * 24 * 60 * 60 * 1000);
 const daysFromNow = (n: number) => new Date(Date.now() + n * 24 * 60 * 60 * 1000);
 
 /**
- * Populates the CRM with a believable set of sample deals, candidates,
- * jobs, matches, activity notes, meetings and emails - covering every
- * pipeline stage so the app doesn't show empty states. Safe to call
+ * Populates the CRM with a believable set of sample deals, jobs (with
+ * openings, bill rates and margins), candidates and placements - covering
+ * every job stage so the app doesn't show empty states. Safe to call
  * repeatedly: skips entirely if the demo data is already present.
  */
 export async function seedDemoData(
@@ -44,8 +44,16 @@ export async function seedDemoData(
   await prisma.client.create({
     data: {
       contactId: meredith.id,
-      companyName: "Northbridge Logistics",
+      name: "Northbridge Logistics",
+      email: DEMO_MARKER_EMAIL,
       stage: "INTERESTED",
+      industry: "Logistics & Warehousing",
+      employeeCount: 220,
+      workHours: "Mon-Fri, 6:00 AM - 2:30 PM",
+      payRate: 24,
+      payUnit: "hourly",
+      city: "Oakland",
+      state: "CA",
     },
   });
 
@@ -59,8 +67,14 @@ export async function seedDemoData(
   await prisma.client.create({
     data: {
       contactId: owen.id,
-      companyName: "Trellis Analytics",
+      name: "Trellis Analytics",
+      email: "owen.faulkner@trellisanalytics.example",
       stage: "CANDIDATE_MATCHED",
+      industry: "Data & Analytics",
+      employeeCount: 65,
+      payRate: 42,
+      city: "Chicago",
+      state: "IL",
     },
   });
 
@@ -74,24 +88,49 @@ export async function seedDemoData(
   const solheim = await prisma.client.create({
     data: {
       contactId: priya.id,
-      companyName: "Solheim Retail Group",
+      name: "Solheim Retail Group",
+      email: "priya.nathan@solheimretail.example",
+      website: "https://solheimretail.example",
       stage: "CONTRACT_SIGNED",
+      industry: "Retail",
+      employeeCount: 340,
+      workHours: "Mon-Sat, 9:00 AM - 6:00 PM",
+      payRate: 26,
+      street: "88 Market St",
+      city: "New York",
+      state: "NY",
+      zipCode: "10007",
     },
   });
-  const storeManagerJob = await prisma.job.create({
+
+  // Multi-opening job: 5 store associate seats, 2 placed + 1 scheduled so far
+  const storeAssociateJob = await prisma.job.create({
     data: {
       clientId: solheim.id,
-      title: "Store Manager",
-      description: "Flagship downtown location, full-time.",
-      status: "OPEN",
+      title: "Store Associate",
+      description: "Flagship downtown location, full-time seasonal ramp-up.",
+      stage: "SCHEDULED",
+      openingsCount: 5,
+      startDate: daysFromNow(10),
+      workHours: "Mon-Sat, 9:00 AM - 6:00 PM",
+      billRate: 26,
+      targetPayRate: 18,
+      requiredSkills: ["POS Systems", "Customer Service", "Retail"],
     },
   });
+
   await prisma.job.create({
     data: {
       clientId: solheim.id,
       title: "Assistant Buyer",
       description: "Seasonal buying support, hybrid.",
-      status: "ON_HOLD",
+      stage: "MATCHING",
+      openingsCount: 1,
+      startDate: daysFromNow(21),
+      workHours: "Mon-Fri, 9:00 AM - 5:00 PM",
+      billRate: 34,
+      targetPayRate: 24,
+      requiredSkills: ["Merchandising", "Excel"],
     },
   });
 
@@ -105,16 +144,30 @@ export async function seedDemoData(
   const foundry = await prisma.client.create({
     data: {
       contactId: derek.id,
-      companyName: "Foundry Creative Co",
+      name: "Foundry Creative Co",
+      email: "derek.alaba@foundrycreative.example",
       stage: "TRIAL_PASSED",
+      industry: "Creative Agency",
+      employeeCount: 28,
+      payRate: 45,
+      city: "Los Angeles",
+      state: "CA",
     },
   });
+
+  // Fully filled job - demonstrates the FILLED_WON auto-transition
   const designerJob = await prisma.job.create({
     data: {
       clientId: foundry.id,
       title: "Junior Designer",
       description: "In-house brand design, contract-to-hire.",
-      status: "CLOSED",
+      stage: "FILLED_WON",
+      openingsCount: 1,
+      startDate: daysAgo(14),
+      workHours: "Mon-Fri, 10:00 AM - 6:00 PM",
+      billRate: 45,
+      targetPayRate: 32,
+      requiredSkills: ["Adobe Creative Suite", "Branding"],
     },
   });
 
@@ -128,12 +181,17 @@ export async function seedDemoData(
   await prisma.client.create({
     data: {
       contactId: vivian.id,
-      companyName: "Cobalt Freight",
+      name: "Cobalt Freight",
+      email: "vivian.marsh@cobaltfreight.example",
       stage: "LOST",
+      industry: "Freight",
+      employeeCount: 90,
+      city: "Boston",
+      state: "MA",
     },
   });
 
-  // --- Candidates, one per pipeline stage ---
+  // --- Candidates, one per pipeline stage, with pay/availability data ---
   const theo = await makeContact({
     firstName: "Theo",
     lastName: "Bannerman",
@@ -145,6 +203,12 @@ export async function seedDemoData(
       contactId: theo.id,
       stage: "SOURCED",
       skills: "Warehouse Operations, Forklift Certified, Inventory Systems",
+      agreedPay: 19,
+      education: "High School / GED",
+      availableFrom: daysFromNow(5),
+      availabilityNote: "Needs 3 days notice",
+      city: "Oakland",
+      state: "CA",
     },
   });
 
@@ -160,6 +224,11 @@ export async function seedDemoData(
       stage: "SUITABLE",
       skills: "Data Analysis, SQL, Tableau",
       resumeNotes: "6 years in retail analytics, strong Excel/SQL background.",
+      agreedPay: 28,
+      education: "Bachelor's",
+      availableFrom: daysFromNow(14),
+      city: "Chicago",
+      state: "IL",
     },
   });
 
@@ -175,13 +244,74 @@ export async function seedDemoData(
       stage: "MATCHED",
       skills: "Retail Management, POS Systems, Team Leadership",
       resumeNotes: "Managed a 20-person team at a big-box retailer for 4 years.",
+      agreedPay: 18,
+      education: "Associate's",
+      availableFrom: daysFromNow(10),
+      city: "New York",
+      state: "NY",
     },
   });
   await prisma.candidateMatch.create({
     data: {
       candidateId: callumCandidate.id,
-      jobId: storeManagerJob.id,
-      status: "PROPOSED",
+      jobId: storeAssociateJob.id,
+      status: "SCHEDULED",
+      agreedPayRate: 18,
+    },
+  });
+
+  // Two more placed store associates, filling 3 of the 5 openings
+  const jasmine = await makeContact({
+    firstName: "Jasmine",
+    lastName: "Ortiz",
+    email: "jasmine.ortiz@example.com",
+    phone: "+1 646-555-0155",
+  });
+  const jasmineCandidate = await prisma.candidate.create({
+    data: {
+      contactId: jasmine.id,
+      stage: "ACCEPTED",
+      skills: "POS Systems, Customer Service",
+      agreedPay: 18.5,
+      education: "High School / GED",
+      availabilityStatus: "Placed",
+      city: "New York",
+      state: "NY",
+    },
+  });
+  await prisma.candidateMatch.create({
+    data: {
+      candidateId: jasmineCandidate.id,
+      jobId: storeAssociateJob.id,
+      status: "PLACED",
+      agreedPayRate: 18.5,
+    },
+  });
+
+  const raymond = await makeContact({
+    firstName: "Raymond",
+    lastName: "Achebe",
+    email: "raymond.achebe@example.com",
+    phone: "+1 646-555-0166",
+  });
+  const raymondCandidate = await prisma.candidate.create({
+    data: {
+      contactId: raymond.id,
+      stage: "ACCEPTED",
+      skills: "Retail, Inventory",
+      agreedPay: 17.75,
+      education: "High School / GED",
+      availabilityStatus: "Placed",
+      city: "Brooklyn",
+      state: "NY",
+    },
+  });
+  await prisma.candidateMatch.create({
+    data: {
+      candidateId: raymondCandidate.id,
+      jobId: storeAssociateJob.id,
+      status: "PLACED",
+      agreedPayRate: 17.75,
     },
   });
 
@@ -197,13 +327,19 @@ export async function seedDemoData(
       stage: "ACCEPTED",
       skills: "Graphic Design, Adobe Creative Suite, Branding",
       resumeNotes: "Portfolio includes rebrands for two DTC startups.",
+      agreedPay: 32,
+      education: "Bachelor's",
+      availabilityStatus: "Placed",
+      city: "Los Angeles",
+      state: "CA",
     },
   });
   await prisma.candidateMatch.create({
     data: {
       candidateId: islaCandidate.id,
       jobId: designerJob.id,
-      status: "ACCEPTED",
+      status: "PLACED",
+      agreedPayRate: 32,
     },
   });
 
@@ -219,6 +355,7 @@ export async function seedDemoData(
       stage: "REJECTED",
       skills: "Cold Calling, B2B Sales",
       resumeNotes: "Not enough experience for current openings; keep warm for future roles.",
+      education: "Trade Cert",
     },
   });
 
@@ -243,7 +380,7 @@ export async function seedDemoData(
       {
         contactId: priya.id,
         authorId: adminId,
-        body: "Contract signed - kicking off search for Store Manager role this week.",
+        body: "Contract signed - kicking off search for Store Associate openings this week.",
       },
       {
         contactId: owen.id,
@@ -253,7 +390,7 @@ export async function seedDemoData(
       {
         contactId: derek.id,
         authorId: adminId,
-        body: "Isla passed her trial period - client wants to discuss a second hire.",
+        body: "Isla passed her trial period and the Junior Designer role is filled.",
       },
       {
         contactId: vivian.id,
@@ -272,7 +409,7 @@ export async function seedDemoData(
   await prisma.meeting.create({
     data: {
       contactId: priya.id,
-      title: "Kickoff call - Store Manager search",
+      title: "Kickoff call - Store Associate search",
       scheduledStart: daysFromNow(1),
       scheduledEnd: daysFromNow(1),
       notes: "Walk through role requirements and timeline.",
@@ -291,7 +428,7 @@ export async function seedDemoData(
   await prisma.emailMessage.create({
     data: {
       contactId: priya.id,
-      subject: "Re: Store Manager role",
+      subject: "Re: Store Associate openings",
       fromAddress: "priya.nathan@solheimretail.example",
       toAddress: "sam@outwork.co.uk",
       snippet: "Thanks for the quick turnaround on candidates...",

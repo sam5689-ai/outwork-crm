@@ -5,15 +5,19 @@ import { requireUser } from "@/lib/session";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { FormField, Textarea, Input } from "@/components/ui/field";
+import { FormField, Textarea, Input, Select } from "@/components/ui/field";
 import { StageSelect } from "@/components/ui/stage-select";
 import { ResumeUpload } from "@/components/candidates/resume-upload";
 import { UpcomingMeetingsCard } from "@/components/calendar/upcoming-meetings-card";
 import {
   CANDIDATE_STAGES,
   CANDIDATE_STAGE_LABELS,
+  MATCH_STATUSES,
   MATCH_STATUS_LABELS,
   MATCH_STATUS_COLORS,
+  AVAILABILITY_STATUSES,
+  AVAILABILITY_STATUS_COLORS,
+  EDUCATION_LEVELS,
 } from "@/lib/stages";
 import {
   updateCandidateStage,
@@ -49,7 +53,7 @@ export default async function CandidateDetailPage({
 
   const matchedJobIds = new Set(candidate.matches.map((m) => m.jobId));
   const availableJobs = await prisma.job.findMany({
-    where: { status: "OPEN", id: { notIn: [...matchedJobIds] } },
+    where: { stage: "OPEN", id: { notIn: [...matchedJobIds] } },
     include: { client: true },
     orderBy: { createdAt: "desc" },
   });
@@ -64,9 +68,19 @@ export default async function CandidateDetailPage({
     <div>
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-xl font-semibold tracking-tight text-neutral-900">
-            {candidate.contact.firstName} {candidate.contact.lastName}
-          </h1>
+          <div className="flex flex-wrap items-center gap-2">
+            <h1 className="text-xl font-semibold tracking-tight text-neutral-900">
+              {candidate.contact.firstName} {candidate.contact.lastName}
+            </h1>
+            <Badge
+              className={
+                AVAILABILITY_STATUS_COLORS[candidate.availabilityStatus] ??
+                "bg-neutral-100 text-neutral-500"
+              }
+            >
+              {candidate.availabilityStatus}
+            </Badge>
+          </div>
           <p className="mt-1 text-sm text-neutral-500">
             <Link
               href={`/contacts/${candidate.contact.id}`}
@@ -92,23 +106,131 @@ export default async function CandidateDetailPage({
           <h2 className="mb-4 text-sm font-semibold text-neutral-900">
             Profile
           </h2>
-          <form action={updateProfileWithId} className="space-y-4">
-            <FormField label="Skills" htmlFor="skills">
-              <Input
-                id="skills"
-                name="skills"
-                placeholder="e.g. React, Node.js, Sales"
-                defaultValue={candidate.skills ?? ""}
-              />
-            </FormField>
-            <FormField label="Resume notes" htmlFor="resumeNotes">
-              <Textarea
-                id="resumeNotes"
-                name="resumeNotes"
-                rows={6}
-                defaultValue={candidate.resumeNotes ?? ""}
-              />
-            </FormField>
+          <form action={updateProfileWithId} className="space-y-5">
+            <div>
+              <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-neutral-400">
+                Pay &amp; Availability
+              </h3>
+              <div className="grid grid-cols-2 gap-3">
+                <FormField label="Agreed pay rate" htmlFor="agreedPay">
+                  <div className="relative">
+                    <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-sm text-neutral-400">
+                      $
+                    </span>
+                    <Input
+                      id="agreedPay"
+                      name="agreedPay"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      defaultValue={candidate.agreedPay ?? ""}
+                      className="pl-6"
+                    />
+                  </div>
+                </FormField>
+                <FormField label="Pay unit" htmlFor="payUnit">
+                  <Select
+                    id="payUnit"
+                    name="payUnit"
+                    defaultValue={candidate.payUnit}
+                  >
+                    <option value="hourly">Hourly</option>
+                    <option value="daily">Daily</option>
+                    <option value="flat">Flat</option>
+                  </Select>
+                </FormField>
+                <FormField label="Education" htmlFor="education">
+                  <Select
+                    id="education"
+                    name="education"
+                    defaultValue={candidate.education ?? ""}
+                  >
+                    <option value="">Select...</option>
+                    {EDUCATION_LEVELS.map((level) => (
+                      <option key={level} value={level}>
+                        {level}
+                      </option>
+                    ))}
+                  </Select>
+                </FormField>
+                <FormField label="Available from" htmlFor="availableFrom">
+                  <Input
+                    id="availableFrom"
+                    name="availableFrom"
+                    type="date"
+                    defaultValue={
+                      candidate.availableFrom
+                        ? candidate.availableFrom.toISOString().slice(0, 10)
+                        : ""
+                    }
+                  />
+                </FormField>
+              </div>
+              <div className="mt-3">
+                <FormField label="Availability note" htmlFor="availabilityNote">
+                  <Input
+                    id="availabilityNote"
+                    name="availabilityNote"
+                    placeholder="e.g. Mornings only, needs 3 days notice"
+                    defaultValue={candidate.availabilityNote ?? ""}
+                  />
+                </FormField>
+              </div>
+              <div className="mt-3">
+                <FormField label="Availability status" htmlFor="availabilityStatus">
+                  <Select
+                    id="availabilityStatus"
+                    name="availabilityStatus"
+                    defaultValue={candidate.availabilityStatus}
+                  >
+                    {AVAILABILITY_STATUSES.map((s) => (
+                      <option key={s} value={s}>
+                        {s}
+                      </option>
+                    ))}
+                  </Select>
+                </FormField>
+              </div>
+            </div>
+
+            <div className="border-t border-neutral-100 pt-4">
+              <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-neutral-400">
+                Location
+              </h3>
+              <div className="grid grid-cols-2 gap-3">
+                <FormField label="City" htmlFor="city">
+                  <Input id="city" name="city" defaultValue={candidate.city ?? ""} />
+                </FormField>
+                <FormField label="State" htmlFor="state">
+                  <Input id="state" name="state" defaultValue={candidate.state ?? ""} />
+                </FormField>
+              </div>
+            </div>
+
+            <div className="border-t border-neutral-100 pt-4">
+              <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-neutral-400">
+                Skills &amp; Resume
+              </h3>
+              <div className="space-y-3">
+                <FormField label="Skills" htmlFor="skills">
+                  <Input
+                    id="skills"
+                    name="skills"
+                    placeholder="e.g. React, Node.js, Sales"
+                    defaultValue={candidate.skills ?? ""}
+                  />
+                </FormField>
+                <FormField label="Resume notes" htmlFor="resumeNotes">
+                  <Textarea
+                    id="resumeNotes"
+                    name="resumeNotes"
+                    rows={5}
+                    defaultValue={candidate.resumeNotes ?? ""}
+                  />
+                </FormField>
+              </div>
+            </div>
+
             <Button type="submit" variant="secondary">
               Save profile
             </Button>
@@ -149,7 +271,7 @@ export default async function CandidateDetailPage({
                 <option value="">Match to a job...</option>
                 {availableJobs.map((job) => (
                   <option key={job.id} value={job.id}>
-                    {job.client.companyName} &middot; {job.title}
+                    {job.client.name} &middot; {job.title}
                   </option>
                 ))}
               </select>
@@ -178,13 +300,15 @@ export default async function CandidateDetailPage({
                   >
                     <div>
                       <Link
-                        href={`/clients/${match.job.clientId}`}
+                        href={`/jobs/${match.job.id}`}
                         className="text-sm font-medium text-neutral-700 hover:text-blue-600"
                       >
-                        {match.job.client.companyName}
+                        {match.job.client.name}
                       </Link>
                       <p className="text-xs text-neutral-400">
                         {match.job.title}
+                        {match.agreedPayRate != null &&
+                          ` · $${match.agreedPayRate.toFixed(2)}/hr agreed`}
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
@@ -195,9 +319,10 @@ export default async function CandidateDetailPage({
                         action={updateMatchStatusWithId}
                         name="status"
                         defaultValue={match.status}
-                        options={Object.entries(MATCH_STATUS_LABELS).map(
-                          ([value, label]) => ({ value, label })
-                        )}
+                        options={MATCH_STATUSES.map((s) => ({
+                          value: s,
+                          label: MATCH_STATUS_LABELS[s],
+                        }))}
                       />
                     </div>
                   </li>

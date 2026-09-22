@@ -2,9 +2,14 @@ import Link from "next/link";
 import { Plus } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { PageHeader } from "@/components/ui/page-header";
+import { Badge } from "@/components/ui/badge";
 import { StageSelect } from "@/components/ui/stage-select";
 import { LinkButton } from "@/components/ui/button";
-import { CANDIDATE_STAGES, CANDIDATE_STAGE_LABELS } from "@/lib/stages";
+import {
+  CANDIDATE_STAGES,
+  CANDIDATE_STAGE_LABELS,
+  AVAILABILITY_STATUS_COLORS,
+} from "@/lib/stages";
 import { updateCandidateStage } from "./actions";
 
 export default async function CandidatesPage() {
@@ -53,12 +58,22 @@ export default async function CandidatesPage() {
                     key={candidate.id}
                     className="rounded-xl border border-neutral-200 bg-white p-4 shadow-sm transition-colors hover:border-neutral-300"
                   >
-                    <Link
-                      href={`/candidates/${candidate.id}`}
-                      className="font-semibold text-neutral-900 hover:text-blue-600"
-                    >
-                      {candidate.contact.firstName} {candidate.contact.lastName}
-                    </Link>
+                    <div className="flex items-center justify-between gap-2">
+                      <Link
+                        href={`/candidates/${candidate.id}`}
+                        className="font-semibold text-neutral-900 hover:text-blue-600"
+                      >
+                        {candidate.contact.firstName} {candidate.contact.lastName}
+                      </Link>
+                      <Badge
+                        className={
+                          AVAILABILITY_STATUS_COLORS[candidate.availabilityStatus] ??
+                          "bg-neutral-100 text-neutral-500"
+                        }
+                      >
+                        {candidate.availabilityStatus}
+                      </Badge>
+                    </div>
                     {candidate.skills && (
                       <p className="mt-1 truncate text-xs text-neutral-400">
                         {candidate.skills}

@@ -5,7 +5,8 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/session";
-import { CANDIDATE_STAGES } from "@/lib/stages";
+import { applyPlacement } from "@/lib/placement";
+import { CANDIDATE_STAGES, MATCH_STATUSES } from "@/lib/stages";
 import type { CandidateStage, MatchStatus } from "@/generated/prisma/enums";
 
 const candidateSchema = z.object({
@@ -17,7 +18,21 @@ const candidateSchema = z.object({
   notes: z.string().trim().optional(),
   skills: z.string().trim().optional(),
   resumeNotes: z.string().trim().optional(),
+  agreedPay: z.string().trim().optional(),
+  payUnit: z.string().trim().optional(),
+  education: z.string().trim().optional(),
+  availableFrom: z.string().trim().optional(),
+  availabilityNote: z.string().trim().optional(),
+  city: z.string().trim().optional(),
+  state: z.string().trim().optional(),
 });
+
+function toOptionalFloat(value: string | undefined) {
+  const str = value?.trim();
+  if (!str) return null;
+  const num = Number(str);
+  return Number.isFinite(num) ? num : null;
+}
 
 export type CandidateFormState = { error?: string } | undefined;
 export type ResumeFormState = { error?: string } | undefined;
@@ -73,6 +88,13 @@ export async function createCandidate(
     notes: formData.get("notes")?.toString() ?? "",
     skills: formData.get("skills")?.toString() ?? "",
     resumeNotes: formData.get("resumeNotes")?.toString() ?? "",
+    agreedPay: formData.get("agreedPay")?.toString() ?? "",
+    payUnit: formData.get("payUnit")?.toString() ?? "",
+    education: formData.get("education")?.toString() ?? "",
+    availableFrom: formData.get("availableFrom")?.toString() ?? "",
+    availabilityNote: formData.get("availabilityNote")?.toString() ?? "",
+    city: formData.get("city")?.toString() ?? "",
+    state: formData.get("state")?.toString() ?? "",
   });
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
@@ -90,6 +112,15 @@ export async function createCandidate(
       resumeFilename: resumeResult.file?.filename,
       resumeMimeType: resumeResult.file?.mimeType,
       resumeData: resumeResult.file?.data,
+      agreedPay: toOptionalFloat(parsed.data.agreedPay),
+      payUnit: parsed.data.payUnit || "hourly",
+      education: parsed.data.education || null,
+      availableFrom: parsed.data.availableFrom
+        ? new Date(parsed.data.availableFrom)
+        : null,
+      availabilityNote: parsed.data.availabilityNote || null,
+      city: parsed.data.city || null,
+      state: parsed.data.state || null,
       contact: {
         create: {
           firstName: parsed.data.firstName,
@@ -146,12 +177,23 @@ export async function updateCandidateProfile(
   await requireUser();
   const skills = formData.get("skills")?.toString().trim();
   const resumeNotes = formData.get("resumeNotes")?.toString().trim();
+  const availableFromRaw = formData.get("availableFrom")?.toString().trim();
 
   await prisma.candidate.update({
     where: { id: candidateId },
     data: {
       skills: skills || null,
       resumeNotes: resumeNotes || null,
+      agreedPay: toOptionalFloat(formData.get("agreedPay")?.toString()),
+      payUnit: formData.get("payUnit")?.toString().trim() || "hourly",
+      education: formData.get("education")?.toString().trim() || null,
+      availableFrom: availableFromRaw ? new Date(availableFromRaw) : null,
+      availabilityNote:
+        formData.get("availabilityNote")?.toString().trim() || null,
+      availabilityStatus:
+        formData.get("availabilityStatus")?.toString().trim() || "Available",
+      city: formData.get("city")?.toString().trim() || null,
+      state: formData.get("state")?.toString().trim() || null,
     },
   });
 
@@ -205,7 +247,7 @@ export async function proposeMatch(candidateId: string, formData: FormData) {
   await prisma.candidateMatch.upsert({
     where: { candidateId_jobId: { candidateId, jobId } },
     update: {},
-    create: { candidateId, jobId, status: "PROPOSED" },
+    create: { candidateId, jobId, status: "SUGGESTED" },
   });
 
   await prisma.candidate.update({
@@ -225,14 +267,17 @@ export async function updateMatchStatus(
 ) {
   await requireUser();
   const status = formData.get("status")?.toString();
-  if (!status) return;
+  if (!status || !MATCH_STATUSES.includes(status as (typeof MATCH_STATUSES)[number])) {
+    return;
+  }
 
   await prisma.candidateMatch.update({
     where: { id: matchId },
     data: { status: status as MatchStatus },
   });
 
-  if (status === "ACCEPTED") {
+  if (status === "PLACED") {
+    await applyPlacement(matchId);
     await prisma.candidate.update({
       where: { id: candidateId },
       data: { stage: "ACCEPTED" },

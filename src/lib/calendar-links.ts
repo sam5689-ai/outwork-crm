@@ -29,7 +29,7 @@ export async function resolveCrmLink(link: CrmLink): Promise<ResolvedCrmLink> {
     return {
       type: "client",
       id: link.id,
-      label: client.companyName,
+      label: client.name,
       href: `/clients/${link.id}`,
     };
   }
