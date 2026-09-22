@@ -2,11 +2,16 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Mail, Phone, Building2, Pencil, Video } from "lucide-react";
 import { prisma } from "@/lib/prisma";
+import { requireUser } from "@/lib/session";
+import { getGoogleFeatures } from "@/lib/google-features";
+import { syncContactEmails } from "@/lib/gmail";
+import { importContactMeetings } from "@/lib/google-calendar";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button, LinkButton } from "@/components/ui/button";
 import { DeleteButton } from "@/components/contacts/delete-button";
 import { ScheduleMeetingForm } from "@/components/contacts/schedule-meeting-form";
+import { MeetingActions } from "@/components/contacts/meeting-actions";
 import {
   CLIENT_STAGE_LABELS,
   CLIENT_STAGE_COLORS,
@@ -19,6 +24,8 @@ import {
   convertToCandidate,
   addActivityNote,
   scheduleMeeting,
+  rescheduleMeeting,
+  cancelMeeting,
 } from "../actions";
 
 export default async function ContactDetailPage({
@@ -27,23 +34,60 @@ export default async function ContactDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+  const [user, features] = await Promise.all([
+    requireUser(),
+    getGoogleFeatures(),
+  ]);
 
-  const contact = await prisma.contact.findUnique({
-    where: { id },
-    include: {
-      client: true,
-      candidate: true,
-      emails: { orderBy: { sentAt: "desc" } },
-      meetings: { orderBy: { scheduledStart: "desc" } },
-      activities: {
-        orderBy: { createdAt: "desc" },
-        include: { author: true },
-      },
-      owner: true,
+  const contactInclude = {
+    client: true,
+    candidate: true,
+    emails: { orderBy: { sentAt: "desc" as const } },
+    meetings: { orderBy: { scheduledStart: "desc" as const } },
+    activities: {
+      orderBy: { createdAt: "desc" as const },
+      include: { author: true },
     },
-  });
+    owner: true,
+  } as const;
 
+  let contact = await prisma.contact.findUnique({
+    where: { id },
+    include: contactInclude,
+  });
   if (!contact) notFound();
+
+  let shouldRefetch = false;
+
+  if (features.emailSync) {
+    const newEmails = await syncContactEmails(user.id, contact);
+    if (newEmails.length > 0) {
+      shouldRefetch = true;
+      const inbound = newEmails.filter((e) => e.direction === "INBOUND");
+      if (inbound.length > 0 && features.autoLogEmailActivity) {
+        await prisma.activity.createMany({
+          data: inbound.map((email) => ({
+            contactId: contact!.id,
+            authorId: user.id,
+            body: `New email from ${email.fromAddress || "contact"}: "${email.subject}"`,
+          })),
+        });
+      }
+    }
+  }
+
+  if (features.importCalendarMeetings) {
+    const newMeetings = await importContactMeetings(user.id, contact);
+    if (newMeetings.length > 0) shouldRefetch = true;
+  }
+
+  if (shouldRefetch) {
+    const refreshed = await prisma.contact.findUnique({
+      where: { id },
+      include: contactInclude,
+    });
+    if (refreshed) contact = refreshed;
+  }
 
   const deleteContactWithId = deleteContact.bind(null, contact.id);
   const convertToClientWithId = convertToClient.bind(null, contact.id);
@@ -234,18 +278,40 @@ export default async function ContactDetailPage({
               <ul className="divide-y divide-neutral-50">
                 {contact.emails.map((email) => (
                   <li key={email.id} className="py-3">
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between gap-2">
                       <p className="text-sm font-medium text-neutral-700">
                         {email.subject}
                       </p>
-                      <span className="text-xs text-neutral-400">
-                        {email.sentAt.toLocaleDateString()}
-                      </span>
+                      <div className="flex shrink-0 items-center gap-2">
+                        <Badge
+                          className={
+                            email.direction === "INBOUND"
+                              ? "bg-blue-50 text-blue-700"
+                              : "bg-neutral-100 text-neutral-600"
+                          }
+                        >
+                          {email.direction === "INBOUND" ? "Received" : "Sent"}
+                        </Badge>
+                        <span className="text-xs text-neutral-400">
+                          {email.sentAt.toLocaleDateString()}
+                        </span>
+                      </div>
                     </div>
-                    {email.snippet && (
-                      <p className="mt-1 text-xs text-neutral-500">
-                        {email.snippet}
-                      </p>
+                    {email.body ? (
+                      <details className="mt-1">
+                        <summary className="cursor-pointer text-xs text-neutral-500 hover:text-neutral-700">
+                          {email.snippet || "View email"}
+                        </summary>
+                        <p className="mt-2 whitespace-pre-wrap text-xs text-neutral-600">
+                          {email.body}
+                        </p>
+                      </details>
+                    ) : (
+                      email.snippet && (
+                        <p className="mt-1 text-xs text-neutral-500">
+                          {email.snippet}
+                        </p>
+                      )
                     )}
                   </li>
                 ))}
@@ -276,28 +342,46 @@ export default async function ContactDetailPage({
               </p>
             ) : (
               <ul className="divide-y divide-neutral-50">
-                {contact.meetings.map((meeting) => (
-                  <li key={meeting.id} className="py-3">
-                    <div className="flex items-center justify-between">
-                      <p className="text-sm font-medium text-neutral-700">
-                        {meeting.title}
-                      </p>
-                      <span className="text-xs text-neutral-400">
-                        {meeting.scheduledStart.toLocaleString()}
-                      </span>
-                    </div>
-                    {meeting.meetLink && (
-                      <a
-                        href={meeting.meetLink}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="mt-1 inline-block text-xs font-medium text-blue-600 hover:underline"
-                      >
-                        Join Google Meet
-                      </a>
-                    )}
-                  </li>
-                ))}
+                {contact.meetings.map((meeting) => {
+                  const rescheduleWithId = rescheduleMeeting.bind(
+                    null,
+                    contact.id,
+                    meeting.id
+                  );
+                  const cancelWithId = cancelMeeting.bind(
+                    null,
+                    contact.id,
+                    meeting.id
+                  );
+                  return (
+                    <li key={meeting.id} className="py-3">
+                      <div className="flex items-center justify-between">
+                        <p className="text-sm font-medium text-neutral-700">
+                          {meeting.title}
+                        </p>
+                        <span className="text-xs text-neutral-400">
+                          {meeting.scheduledStart.toLocaleString()}
+                        </span>
+                      </div>
+                      {meeting.meetLink && (
+                        <a
+                          href={meeting.meetLink}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="mt-1 inline-block text-xs font-medium text-blue-600 hover:underline"
+                        >
+                          Join Google Meet
+                        </a>
+                      )}
+                      {meeting.googleEventId && (
+                        <MeetingActions
+                          rescheduleAction={rescheduleWithId}
+                          cancelAction={cancelWithId}
+                        />
+                      )}
+                    </li>
+                  );
+                })}
               </ul>
             )}
           </Card>

@@ -155,3 +155,29 @@ export async function disconnectGoogleAccount() {
   await prisma.googleAccount.deleteMany({ where: { userId: user.id } });
   revalidatePath("/settings/integrations");
 }
+
+const GOOGLE_FEATURE_KEYS = [
+  "emailSync",
+  "autoLogEmailActivity",
+  "importCalendarMeetings",
+  "todaysMeetingsWidget",
+  "followUpReminders",
+] as const;
+
+export async function updateGoogleFeatures(formData: FormData) {
+  await requireAdmin();
+
+  const value = Object.fromEntries(
+    GOOGLE_FEATURE_KEYS.map((key) => [key, formData.get(key) === "on"])
+  );
+
+  await prisma.setting.upsert({
+    where: { key: "googleFeatures" },
+    update: { value },
+    create: { key: "googleFeatures", value },
+  });
+
+  revalidatePath("/settings/integrations");
+  revalidatePath("/dashboard");
+  revalidatePath("/contacts", "layout");
+}

@@ -1,9 +1,12 @@
-import { CheckCircle2, Mail, Video, AlertTriangle } from "lucide-react";
+import { CheckCircle2, Mail, Video, AlertTriangle, Settings2 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/session";
 import { isGoogleConfigured } from "@/lib/google";
+import { getGoogleFeatures } from "@/lib/google-features";
 import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Button, LinkButton } from "@/components/ui/button";
+import { GoogleFeaturesForm } from "@/components/settings/google-features-form";
 import { disconnectGoogleAccount } from "../actions";
 
 const ERROR_MESSAGES: Record<string, string> = {
@@ -14,6 +17,14 @@ const ERROR_MESSAGES: Record<string, string> = {
   access_denied: "Google access was not granted.",
 };
 
+const FEATURE_LABELS: Record<string, string> = {
+  emailSync: "Sync emails to contacts",
+  autoLogEmailActivity: "Auto-log new emails as activity",
+  importCalendarMeetings: "Import existing calendar meetings",
+  todaysMeetingsWidget: "Today's meetings on the dashboard",
+  followUpReminders: "Follow-up reminders",
+};
+
 export default async function IntegrationsSettingsPage({
   searchParams,
 }: {
@@ -22,10 +33,11 @@ export default async function IntegrationsSettingsPage({
   const user = await requireUser();
   const { error } = await searchParams;
 
-  const account = await prisma.googleAccount.findUnique({
-    where: { userId: user.id },
-  });
-  const configured = isGoogleConfigured();
+  const [account, configured, features] = await Promise.all([
+    prisma.googleAccount.findUnique({ where: { userId: user.id } }),
+    isGoogleConfigured(),
+    getGoogleFeatures(),
+  ]);
 
   return (
     <div className="space-y-6">
@@ -114,13 +126,55 @@ export default async function IntegrationsSettingsPage({
               Scheduling Google Meet calls
             </h2>
             <p className="mt-1 max-w-md text-sm text-neutral-500">
-              Once connected, open any contact and use &quot;Schedule Google
-              Meet&quot; to create a calendar invite with a Meet link
-              that&apos;s automatically saved to that contact&apos;s
-              timeline.
+              Open any contact and use &quot;Schedule Google Meet&quot; to
+              create a calendar invite with a Meet link that&apos;s
+              automatically saved to that contact&apos;s timeline. Always on
+              once you&apos;re connected.
             </p>
           </div>
         </div>
+      </Card>
+
+      <Card>
+        <div className="mb-4 flex gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-violet-50 text-violet-600">
+            <Settings2 className="h-5 w-5" />
+          </div>
+          <div>
+            <h2 className="text-sm font-semibold text-neutral-900">
+              Google integration features
+            </h2>
+            <p className="mt-1 max-w-md text-sm text-neutral-500">
+              Choose which parts of the Google integration are switched on
+              for everyone. These only take effect for users who&apos;ve
+              connected their own Google account.
+            </p>
+          </div>
+        </div>
+
+        {user.role === "ADMIN" ? (
+          <GoogleFeaturesForm features={features} />
+        ) : (
+          <div className="space-y-2">
+            {Object.entries(FEATURE_LABELS).map(([key, label]) => (
+              <div key={key} className="flex items-center justify-between text-sm">
+                <span className="text-neutral-700">{label}</span>
+                <Badge
+                  className={
+                    features[key as keyof typeof features]
+                      ? "bg-emerald-50 text-emerald-700"
+                      : "bg-neutral-100 text-neutral-500"
+                  }
+                >
+                  {features[key as keyof typeof features] ? "On" : "Off"}
+                </Badge>
+              </div>
+            ))}
+            <p className="pt-2 text-xs text-neutral-400">
+              Ask an admin to change these in Settings.
+            </p>
+          </div>
+        )}
       </Card>
     </div>
   );

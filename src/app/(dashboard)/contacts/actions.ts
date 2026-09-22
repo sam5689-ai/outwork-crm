@@ -5,7 +5,11 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/session";
-import { createGoogleMeetEvent } from "@/lib/google-calendar";
+import {
+  createGoogleMeetEvent,
+  rescheduleGoogleMeetEvent,
+  cancelGoogleMeetEvent,
+} from "@/lib/google-calendar";
 
 const contactSchema = z.object({
   firstName: z.string().trim().min(1, "First name is required"),
@@ -207,4 +211,55 @@ export async function scheduleMeeting(
 
   revalidatePath(`/contacts/${contactId}`);
   return undefined;
+}
+
+export async function rescheduleMeeting(
+  contactId: string,
+  meetingId: string,
+  _prevState: MeetingFormState,
+  formData: FormData
+): Promise<MeetingFormState> {
+  const user = await requireUser();
+
+  const startTimeRaw = formData.get("startTime")?.toString();
+  const durationMinutes = Number(formData.get("durationMinutes") ?? 30);
+  if (!startTimeRaw) {
+    return { error: "Enter a new start time." };
+  }
+  const startTime = new Date(startTimeRaw);
+  if (Number.isNaN(startTime.getTime())) {
+    return { error: "Enter a valid date and time." };
+  }
+  const endTime = new Date(startTime.getTime() + durationMinutes * 60_000);
+
+  const meeting = await prisma.meeting.findUniqueOrThrow({
+    where: { id: meetingId },
+  });
+
+  try {
+    await rescheduleGoogleMeetEvent(user.id, meeting, startTime, endTime);
+    await prisma.meeting.update({
+      where: { id: meetingId },
+      data: { scheduledStart: startTime, scheduledEnd: endTime },
+    });
+  } catch (err) {
+    return {
+      error: err instanceof Error ? err.message : "Couldn't reschedule the meeting.",
+    };
+  }
+
+  revalidatePath(`/contacts/${contactId}`);
+  return undefined;
+}
+
+export async function cancelMeeting(contactId: string, meetingId: string) {
+  const user = await requireUser();
+  const meeting = await prisma.meeting.findUniqueOrThrow({
+    where: { id: meetingId },
+  });
+
+  await cancelGoogleMeetEvent(user.id, meeting);
+  await prisma.meeting.delete({ where: { id: meetingId } });
+
+  revalidatePath(`/contacts/${contactId}`);
 }
