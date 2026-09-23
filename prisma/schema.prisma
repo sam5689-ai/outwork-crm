@@ -62,6 +62,13 @@ enum EmailFolder {
   DRAFT
 }
 
+enum ContactChannel {
+  PHONE_CALL
+  EMAIL
+  WHATSAPP
+  OTHER
+}
+
 model User {
   id           String   @id @default(cuid())
   username     String   @unique
@@ -75,6 +82,7 @@ model User {
 
   contacts      Contact[]      @relation("ContactOwner")
   activities    Activity[]
+  reminders     Reminder[]
   googleAccount GoogleAccount?
   syncedEmails  EmailMessage[]
 }
@@ -110,6 +118,7 @@ model Contact {
   emails     EmailMessage[]
   meetings   Meeting[]
   activities Activity[]
+  reminders  Reminder[]
 
   @@index([ownerId])
   @@index([email])
@@ -263,15 +272,32 @@ model Meeting {
 }
 
 model Activity {
-  id        String   @id @default(cuid())
+  id        String          @id @default(cuid())
   contactId String
-  contact   Contact  @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  contact   Contact         @relation(fields: [contactId], references: [id], onDelete: Cascade)
   authorId  String
-  author    User     @relation(fields: [authorId], references: [id])
-  body      String   @db.Text
-  createdAt DateTime @default(now())
+  author    User            @relation(fields: [authorId], references: [id])
+  channel   ContactChannel?
+  body      String          @db.Text
+  createdAt DateTime        @default(now())
 
   @@index([contactId])
+}
+
+model Reminder {
+  id          String         @id @default(cuid())
+  contactId   String
+  contact     Contact        @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  authorId    String
+  author      User           @relation(fields: [authorId], references: [id])
+  channel     ContactChannel @default(OTHER)
+  note        String?        @db.Text
+  dueAt       DateTime
+  completedAt DateTime?
+  createdAt   DateTime       @default(now())
+
+  @@index([contactId])
+  @@index([authorId, dueAt])
 }
 
 model Setting {

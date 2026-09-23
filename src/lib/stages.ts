@@ -123,3 +123,26 @@ export const EDUCATION_LEVELS = [
   "Bachelor's",
   "Master's+",
 ] as const;
+
+export const CONTACT_CHANNELS = [
+  "PHONE_CALL",
+  "EMAIL",
+  "WHATSAPP",
+  "OTHER",
+] as const;
+
+export type ContactChannelValue = (typeof CONTACT_CHANNELS)[number];
+
+export const CONTACT_CHANNEL_LABELS: Record<ContactChannelValue, string> = {
+  PHONE_CALL: "Phone call",
+  EMAIL: "Email",
+  WHATSAPP: "WhatsApp",
+  OTHER: "Anything",
+};
+
+export const CONTACT_CHANNEL_COLORS: Record<ContactChannelValue, string> = {
+  PHONE_CALL: "bg-emerald-50 text-emerald-700",
+  EMAIL: "bg-blue-50 text-blue-700",
+  WHATSAPP: "bg-teal-50 text-teal-700",
+  OTHER: "bg-neutral-100 text-neutral-500",
+};

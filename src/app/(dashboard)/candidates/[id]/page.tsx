@@ -9,6 +9,7 @@ import { FormField, Textarea, Input, Select } from "@/components/ui/field";
 import { StageSelect } from "@/components/ui/stage-select";
 import { ResumeUpload } from "@/components/candidates/resume-upload";
 import { UpcomingMeetingsCard } from "@/components/calendar/upcoming-meetings-card";
+import { ActivityPanel } from "@/components/contacts/activity-panel";
 import {
   CANDIDATE_STAGES,
   CANDIDATE_STAGE_LABELS,
@@ -333,7 +334,10 @@ export default async function CandidateDetailPage({
         </Card>
       </div>
 
-      <div className="mt-6">
+      <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div className="lg:col-span-2">
+          <ActivityPanel contactId={candidate.contact.id} />
+        </div>
         <UpcomingMeetingsCard
           userId={user.id}
           contactEmail={candidate.contact.email}

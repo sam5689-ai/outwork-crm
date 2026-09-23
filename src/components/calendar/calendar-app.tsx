@@ -27,6 +27,7 @@ export function CalendarApp() {
   const [error, setError] = useState<string | null>(null);
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [completing, setCompleting] = useState(false);
   const [formState, setFormState] = useState<
     { mode: "new"; initialStart: Date } | { mode: "edit"; event: CalendarEvent } | null
   >(null);
@@ -86,6 +87,26 @@ export function CalendarApp() {
       fetchEvents();
     } finally {
       setDeleting(false);
+    }
+  }
+
+  async function handleCompleteReminder() {
+    if (!selectedEvent?.reminderId) return;
+    setCompleting(true);
+    try {
+      const res = await fetch(
+        `/api/reminders/${selectedEvent.reminderId}/complete`,
+        { method: "POST" }
+      );
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setError(data.error || "Couldn't mark the reminder done.");
+        return;
+      }
+      setSelectedEvent(null);
+      fetchEvents();
+    } finally {
+      setCompleting(false);
     }
   }
 
@@ -216,6 +237,8 @@ export function CalendarApp() {
           }}
           onDelete={handleDelete}
           isDeleting={deleting}
+          onCompleteReminder={handleCompleteReminder}
+          isCompleting={completing}
         />
       )}
 

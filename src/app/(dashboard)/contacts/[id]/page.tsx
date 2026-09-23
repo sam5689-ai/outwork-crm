@@ -14,6 +14,7 @@ import { DeleteButton } from "@/components/contacts/delete-button";
 import { ScheduleMeetingForm } from "@/components/contacts/schedule-meeting-form";
 import { MeetingActions } from "@/components/contacts/meeting-actions";
 import { EmailBody } from "@/components/contacts/email-body";
+import { ActivityPanel } from "@/components/contacts/activity-panel";
 import {
   CLIENT_STAGE_LABELS,
   CLIENT_STAGE_COLORS,
@@ -24,7 +25,6 @@ import {
   deleteContact,
   convertToClient,
   convertToCandidate,
-  addActivityNote,
   scheduleMeeting,
   rescheduleMeeting,
   cancelMeeting,
@@ -50,10 +50,6 @@ export default async function ContactDetailPage({
     candidate: true,
     emails: { orderBy: { sentAt: "desc" as const } },
     meetings: { orderBy: { scheduledStart: "desc" as const } },
-    activities: {
-      orderBy: { createdAt: "desc" as const },
-      include: { author: true },
-    },
     owner: true,
   } as const;
 
@@ -98,7 +94,6 @@ export default async function ContactDetailPage({
   const deleteContactWithId = deleteContact.bind(null, contact.id);
   const convertToClientWithId = convertToClient.bind(null, contact.id);
   const convertToCandidateWithId = convertToCandidate.bind(null, contact.id);
-  const addNoteWithId = addActivityNote.bind(null, contact.id);
   const scheduleMeetingWithId = scheduleMeeting.bind(null, contact.id);
 
   return (
@@ -225,42 +220,7 @@ export default async function ContactDetailPage({
         </div>
 
         <div className="space-y-6 lg:col-span-2">
-          <Card>
-            <h2 className="mb-4 font-display text-base font-semibold text-ink">
-              Activity
-            </h2>
-            <form action={addNoteWithId} className="mb-4 flex gap-2">
-              <input
-                type="text"
-                name="body"
-                placeholder="Add a note..."
-                className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-              />
-              <Button type="submit" variant="secondary" className="shrink-0">
-                Add
-              </Button>
-            </form>
-            {contact.activities.length === 0 ? (
-              <p className="py-4 text-center text-sm text-neutral-400">
-                No activity yet.
-              </p>
-            ) : (
-              <ul className="space-y-3">
-                {contact.activities.map((activity) => (
-                  <li
-                    key={activity.id}
-                    className="border-l-2 border-blue-100 pl-3 text-sm"
-                  >
-                    <p className="text-neutral-700">{activity.body}</p>
-                    <p className="mt-0.5 text-xs text-neutral-400">
-                      {activity.author.name} &middot;{" "}
-                      {activity.createdAt.toLocaleString()}
-                    </p>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </Card>
+          <ActivityPanel contactId={contact.id} />
 
           <Card>
             <div className="mb-4 flex items-center justify-between">

@@ -9,6 +9,7 @@ import {
   type CalendarEventInput,
 } from "@/lib/google-calendar";
 import { resolveCrmLink } from "@/lib/calendar-links";
+import { getReminderCalendarEvents } from "@/lib/reminder-events";
 
 function errorResponse(err: unknown) {
   if (err instanceof CalendarNotConnectedError) {
@@ -41,18 +42,32 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Invalid start/end date." }, { status: 400 });
   }
 
+  let googleEvents: Awaited<ReturnType<typeof listCalendarEvents>> = [];
   try {
-    const events = await listCalendarEvents(session.user.id, timeMin, timeMax);
-    const resolved = await Promise.all(
-      events.map(async (event) => ({
+    googleEvents = await listCalendarEvents(session.user.id, timeMin, timeMax);
+  } catch (err) {
+    // No Google account connected just means no Google events to merge in -
+    // local reminders still render on the calendar. Any other failure
+    // (a real API error) is still worth surfacing.
+    if (!(err instanceof CalendarNotConnectedError)) {
+      return errorResponse(err);
+    }
+  }
+
+  const [resolvedGoogleEvents, reminderEvents] = await Promise.all([
+    Promise.all(
+      googleEvents.map(async (event) => ({
         ...event,
         crmLink: await resolveCrmLink(event.crmLink),
+        source: "google" as const,
       }))
-    );
-    return NextResponse.json({ events: resolved });
-  } catch (err) {
-    return errorResponse(err);
-  }
+    ),
+    getReminderCalendarEvents(session.user.id, timeMin, timeMax),
+  ]);
+
+  return NextResponse.json({
+    events: [...resolvedGoogleEvents, ...reminderEvents],
+  });
 }
 
 export async function POST(request: NextRequest) {

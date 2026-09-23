@@ -5,11 +5,19 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/session";
+import { CONTACT_CHANNELS, type ContactChannelValue } from "@/lib/stages";
 import {
   createGoogleMeetEvent,
   rescheduleGoogleMeetEvent,
   cancelGoogleMeetEvent,
 } from "@/lib/google-calendar";
+
+function parseChannel(value: FormDataEntryValue | null): ContactChannelValue | null {
+  const str = value?.toString();
+  return CONTACT_CHANNELS.includes(str as ContactChannelValue)
+    ? (str as ContactChannelValue)
+    : null;
+}
 
 const contactSchema = z.object({
   firstName: z.string().trim().min(1, "First name is required"),
@@ -141,16 +149,74 @@ export async function convertToCandidate(contactId: string) {
   redirect(`/contacts/${contactId}`);
 }
 
-export async function addActivityNote(contactId: string, formData: FormData) {
+export type ActivityFormState = { error?: string } | undefined;
+
+export async function addActivityNote(
+  contactId: string,
+  _prevState: ActivityFormState,
+  formData: FormData
+): Promise<ActivityFormState> {
   const user = await requireUser();
   const body = formData.get("body")?.toString().trim();
-  if (!body) return;
+  if (!body) {
+    return { error: "Add a note before logging it." };
+  }
+  const channel = parseChannel(formData.get("channel"));
 
   await prisma.activity.create({
-    data: { contactId, authorId: user.id, body },
+    data: { contactId, authorId: user.id, body, channel },
   });
 
   revalidatePath(`/contacts/${contactId}`);
+  revalidatePath(`/clients`);
+  revalidatePath(`/candidates`);
+  return undefined;
+}
+
+export type ReminderFormState = { error?: string } | undefined;
+
+export async function createReminder(
+  contactId: string,
+  _prevState: ReminderFormState,
+  formData: FormData
+): Promise<ReminderFormState> {
+  const user = await requireUser();
+  const channel = parseChannel(formData.get("channel")) ?? "OTHER";
+  const dueAtRaw = formData.get("dueAt")?.toString();
+  const note = formData.get("note")?.toString().trim() || null;
+
+  if (!dueAtRaw) {
+    return { error: "Pick a date and time for the reminder." };
+  }
+  const dueAt = new Date(dueAtRaw);
+  if (Number.isNaN(dueAt.getTime())) {
+    return { error: "Enter a valid date and time." };
+  }
+
+  await prisma.reminder.create({
+    data: { contactId, authorId: user.id, channel, note, dueAt },
+  });
+
+  revalidatePath(`/contacts/${contactId}`);
+  revalidatePath(`/clients`);
+  revalidatePath(`/candidates`);
+  revalidatePath(`/dashboard`);
+  revalidatePath(`/calendar`);
+  return undefined;
+}
+
+export async function completeReminder(contactId: string, reminderId: string) {
+  await requireUser();
+  await prisma.reminder.update({
+    where: { id: reminderId },
+    data: { completedAt: new Date() },
+  });
+
+  revalidatePath(`/contacts/${contactId}`);
+  revalidatePath(`/clients`);
+  revalidatePath(`/candidates`);
+  revalidatePath(`/dashboard`);
+  revalidatePath(`/calendar`);
 }
 
 export type MeetingFormState = { error?: string } | undefined;

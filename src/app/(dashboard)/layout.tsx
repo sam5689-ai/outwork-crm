@@ -4,6 +4,7 @@ import { getBranding } from "@/lib/branding";
 import { getGoogleFeatures } from "@/lib/google-features";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { SIDEBAR_COOKIE } from "@/components/layout/sidebar-cookie";
+import { DueTodayBanner } from "@/components/reminders/due-today-banner";
 
 export default async function DashboardLayout({
   children,
@@ -26,6 +27,7 @@ export default async function DashboardLayout({
       inboxEnabled={features.inboxEnabled}
       initialCollapsed={cookieStore.get(SIDEBAR_COOKIE)?.value === "1"}
     >
+      <DueTodayBanner userId={user.id} />
       {children}
     </DashboardShell>
   );

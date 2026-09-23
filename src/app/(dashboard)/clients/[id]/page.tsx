@@ -9,6 +9,7 @@ import { Button, LinkButton } from "@/components/ui/button";
 import { FormField, Input, Select } from "@/components/ui/field";
 import { StageSelect } from "@/components/ui/stage-select";
 import { UpcomingMeetingsCard } from "@/components/calendar/upcoming-meetings-card";
+import { ActivityPanel } from "@/components/contacts/activity-panel";
 import { calculateMargin } from "@/lib/placement";
 import {
   CLIENT_STAGES,
@@ -311,7 +312,10 @@ export default async function ClientDetailPage({
         </Card>
       </div>
 
-      <div className="mt-6">
+      <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div className="lg:col-span-2">
+          <ActivityPanel contactId={client.contact.id} />
+        </div>
         <UpcomingMeetingsCard
           userId={user.id}
           contactEmail={client.contact.email}

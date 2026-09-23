@@ -15,6 +15,10 @@ export type CalendarEvent = {
     label: string;
     href: string;
   } | null;
+  /** "reminder" = a local CRM follow-up reminder, not a Google Calendar event. */
+  source?: "google" | "reminder";
+  reminderId?: string;
+  reminderDone?: boolean;
 };
 
 export type CalendarView = "month" | "week" | "day" | "agenda";

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { format } from "date-fns";
-import { X, MapPin, Video, Pencil, Trash2, ExternalLink } from "lucide-react";
+import { X, MapPin, Video, Pencil, Trash2, ExternalLink, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import type { CalendarEvent } from "./types";
@@ -20,15 +20,20 @@ export function EventPopover({
   onEdit,
   onDelete,
   isDeleting,
+  onCompleteReminder,
+  isCompleting,
 }: {
   event: CalendarEvent;
   onClose: () => void;
   onEdit: () => void;
   onDelete: () => void;
   isDeleting: boolean;
+  onCompleteReminder?: () => void;
+  isCompleting?: boolean;
 }) {
   const start = new Date(event.start);
   const end = new Date(event.end);
+  const isReminder = event.source === "reminder";
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-neutral-900/20 p-4">
@@ -114,19 +119,34 @@ export function EventPopover({
         )}
 
         <div className="mt-4 flex items-center gap-2 border-t border-neutral-100 pt-3">
-          <Button type="button" variant="secondary" onClick={onEdit}>
-            <Pencil className="h-4 w-4" />
-            Edit
-          </Button>
-          <Button
-            type="button"
-            variant="danger"
-            onClick={onDelete}
-            disabled={isDeleting}
-          >
-            <Trash2 className="h-4 w-4" />
-            {isDeleting ? "Deleting..." : "Delete"}
-          </Button>
+          {isReminder ? (
+            !event.reminderDone && (
+              <Button
+                type="button"
+                onClick={onCompleteReminder}
+                disabled={isCompleting}
+              >
+                <Check className="h-4 w-4" />
+                {isCompleting ? "Saving..." : "Mark done"}
+              </Button>
+            )
+          ) : (
+            <>
+              <Button type="button" variant="secondary" onClick={onEdit}>
+                <Pencil className="h-4 w-4" />
+                Edit
+              </Button>
+              <Button
+                type="button"
+                variant="danger"
+                onClick={onDelete}
+                disabled={isDeleting}
+              >
+                <Trash2 className="h-4 w-4" />
+                {isDeleting ? "Deleting..." : "Delete"}
+              </Button>
+            </>
+          )}
         </div>
       </div>
     </div>
