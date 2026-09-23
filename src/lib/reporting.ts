@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 
 export const REPORT_PERIODS = [
-  "yesterday",
+  "week",
   "month",
   "last-month",
   "quarter",
@@ -14,7 +14,7 @@ export type ReportPeriod = (typeof REPORT_PERIODS)[number];
 export const DEFAULT_REPORT_PERIOD: ReportPeriod = "month";
 
 export const REPORT_PERIOD_LABELS: Record<ReportPeriod, string> = {
-  yesterday: "Yesterday",
+  week: "This week",
   month: "This month",
   "last-month": "Last month",
   quarter: "This quarter",
@@ -39,9 +39,9 @@ export function reportRange(period: ReportPeriod, now = new Date()): DateRange {
     new Date(Date.UTC(year, month, day));
 
   switch (period) {
-    case "yesterday": {
-      const today = utc(y, m, now.getUTCDate());
-      return { start: utc(y, m, now.getUTCDate() - 1), end: today };
+    case "week": {
+      const daysSinceMonday = (now.getUTCDay() + 6) % 7;
+      return { start: utc(y, m, now.getUTCDate() - daysSinceMonday), end: now };
     }
     case "month":
       return { start: utc(y, m), end: now };
