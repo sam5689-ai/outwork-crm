@@ -1,15 +1,15 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Plus } from "lucide-react";
+import { Plus, Phone } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/session";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button, LinkButton } from "@/components/ui/button";
-import { FormField, Input, Select } from "@/components/ui/field";
+import { LinkButton } from "@/components/ui/button";
 import { StageSelect } from "@/components/ui/stage-select";
 import { UpcomingMeetingsCard } from "@/components/calendar/upcoming-meetings-card";
 import { ActivityPanel } from "@/components/contacts/activity-panel";
+import { CompanyDetailsSection } from "@/components/clients/company-details-section";
 import { calculateMargin } from "@/lib/placement";
 import {
   CLIENT_STAGES,
@@ -56,20 +56,34 @@ export default async function ClientDetailPage({
 
   return (
     <div>
-      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="text-xl font-semibold tracking-tight text-neutral-900">
             {client.name}
           </h1>
-          <p className="mt-1 text-sm text-neutral-500">
-            Primary contact:{" "}
+          <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+            {client.contact.phone ? (
+              <a
+                href={`tel:${client.contact.phone}`}
+                className="flex items-center gap-1.5 font-semibold text-blue-600 hover:underline"
+              >
+                <Phone className="h-3.5 w-3.5" />
+                {client.contact.phone}
+              </a>
+            ) : (
+              <span className="flex items-center gap-1.5 text-neutral-400">
+                <Phone className="h-3.5 w-3.5" />
+                No phone on file
+              </span>
+            )}
+            <span className="text-neutral-300">·</span>
             <Link
               href={`/contacts/${client.contact.id}`}
-              className="font-medium text-blue-600 hover:underline"
+              className="text-neutral-500 hover:text-blue-600 hover:underline"
             >
               {client.contact.firstName} {client.contact.lastName}
             </Link>
-          </p>
+          </div>
           <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
             {landedAt ? (
               <Badge className="bg-emerald-50 text-emerald-700">
@@ -93,148 +107,30 @@ export default async function ClientDetailPage({
             </span>
           </div>
         </div>
-        <StageSelect
-          action={updateStageWithId}
-          name="stage"
-          defaultValue={client.stage}
-          options={CLIENT_STAGES.map((s) => ({
-            value: s,
-            label: CLIENT_STAGE_LABELS[s],
-          }))}
-        />
+        <div className="flex items-center gap-2">
+          <a
+            href="#company-details"
+            className="inline-flex min-h-10 items-center justify-center gap-2 rounded-full bg-white px-5 py-2 text-sm font-semibold text-neutral-800 shadow-sm ring-1 ring-inset ring-neutral-200 hover:ring-neutral-300"
+          >
+            Edit details
+          </a>
+          <StageSelect
+            action={updateStageWithId}
+            name="stage"
+            defaultValue={client.stage}
+            options={CLIENT_STAGES.map((s) => ({
+              value: s,
+              label: CLIENT_STAGE_LABELS[s],
+            }))}
+          />
+        </div>
+      </div>
+
+      <div className="mb-6">
+        <ActivityPanel contactId={client.contact.id} />
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <Card className="lg:col-span-1">
-          <h2 className="mb-4 font-display text-base font-semibold text-ink">
-            Company Details
-          </h2>
-          <form action={updateClientDetailsWithId} className="space-y-5">
-            <div>
-              <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-neutral-400">
-                Overview
-              </h3>
-              <div className="space-y-3">
-                <FormField label="Company name" htmlFor="name">
-                  <Input id="name" name="name" required defaultValue={client.name} />
-                </FormField>
-                <FormField label="Email" htmlFor="email">
-                  <Input
-                    id="email"
-                    name="email"
-                    type="email"
-                    defaultValue={client.email ?? ""}
-                  />
-                </FormField>
-                <FormField label="Website" htmlFor="website">
-                  <Input
-                    id="website"
-                    name="website"
-                    placeholder="https://"
-                    defaultValue={client.website ?? ""}
-                  />
-                </FormField>
-                <div className="grid grid-cols-2 gap-3">
-                  <FormField label="Industry" htmlFor="industry">
-                    <Input
-                      id="industry"
-                      name="industry"
-                      defaultValue={client.industry ?? ""}
-                    />
-                  </FormField>
-                  <FormField label="Employees" htmlFor="employeeCount">
-                    <Input
-                      id="employeeCount"
-                      name="employeeCount"
-                      type="number"
-                      min="0"
-                      defaultValue={client.employeeCount ?? ""}
-                    />
-                  </FormField>
-                </div>
-                <FormField label="Work hours" htmlFor="workHours">
-                  <Input
-                    id="workHours"
-                    name="workHours"
-                    placeholder="Mon-Fri, 8:00 AM - 4:30 PM"
-                    defaultValue={client.workHours ?? ""}
-                  />
-                </FormField>
-              </div>
-            </div>
-
-            <div className="border-t border-neutral-100 pt-4">
-              <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-neutral-400">
-                Bill Rate
-              </h3>
-              <div className="grid grid-cols-2 gap-3">
-                <FormField label="Client bill rate" htmlFor="payRate">
-                  <div className="relative">
-                    <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-sm text-neutral-400">
-                      $
-                    </span>
-                    <Input
-                      id="payRate"
-                      name="payRate"
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      defaultValue={client.payRate ?? ""}
-                      className="pl-6"
-                    />
-                  </div>
-                </FormField>
-                <FormField label="Unit" htmlFor="payUnit">
-                  <Select id="payUnit" name="payUnit" defaultValue={client.payUnit}>
-                    <option value="hourly">Hourly</option>
-                    <option value="daily">Daily</option>
-                    <option value="flat">Flat</option>
-                  </Select>
-                </FormField>
-              </div>
-            </div>
-
-            <div className="border-t border-neutral-100 pt-4">
-              <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-neutral-400">
-                Address
-              </h3>
-              <div className="space-y-3">
-                <FormField label="Street" htmlFor="street">
-                  <Input id="street" name="street" defaultValue={client.street ?? ""} />
-                </FormField>
-                <div className="grid grid-cols-2 gap-3">
-                  <FormField label="City" htmlFor="city">
-                    <Input id="city" name="city" defaultValue={client.city ?? ""} />
-                  </FormField>
-                  <FormField label="State" htmlFor="state">
-                    <Input id="state" name="state" defaultValue={client.state ?? ""} />
-                  </FormField>
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <FormField label="ZIP code" htmlFor="zipCode">
-                    <Input
-                      id="zipCode"
-                      name="zipCode"
-                      defaultValue={client.zipCode ?? ""}
-                    />
-                  </FormField>
-                  <FormField label="Country" htmlFor="country">
-                    <Input
-                      id="country"
-                      name="country"
-                      defaultValue={client.country ?? "US"}
-                    />
-                  </FormField>
-                </div>
-              </div>
-            </div>
-
-            <Button type="submit" variant="secondary">
-              Save details
-            </Button>
-          </form>
-        </Card>
-
         <Card className="lg:col-span-2">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="font-display text-base font-semibold text-ink">Jobs</h2>
@@ -310,16 +206,15 @@ export default async function ClientDetailPage({
             </div>
           )}
         </Card>
-      </div>
 
-      <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2">
-          <ActivityPanel contactId={client.contact.id} />
-        </div>
         <UpcomingMeetingsCard
           userId={user.id}
           contactEmail={client.contact.email}
         />
+      </div>
+
+      <div id="company-details" className="mt-6 scroll-mt-6">
+        <CompanyDetailsSection client={client} action={updateClientDetailsWithId} />
       </div>
     </div>
   );
