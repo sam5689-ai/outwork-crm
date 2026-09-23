@@ -287,4 +287,5 @@ export async function updateMatchStatus(
   revalidatePath(`/candidates/${candidateId}`);
   revalidatePath("/clients");
   revalidatePath("/jobs");
+  revalidatePath("/dashboard");
 }

@@ -26,7 +26,7 @@ export function ComposeButton() {
         <div className="fixed inset-0 z-50 flex items-end justify-end bg-neutral-900/20 p-4 sm:items-center sm:justify-center">
           <div className="flex h-[85vh] w-full max-w-lg flex-col rounded-xl bg-white p-4 shadow-2xl sm:h-[600px]">
             <div className="mb-2 flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-neutral-900">
+              <h2 className="font-display text-base font-semibold text-ink">
                 New Message
               </h2>
               <button

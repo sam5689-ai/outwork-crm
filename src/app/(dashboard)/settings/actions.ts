@@ -201,6 +201,6 @@ export async function loadDemoData(): Promise<DemoDataState> {
   return {
     message: result.skipped
       ? "Demo data was already loaded - nothing new added."
-      : "Demo data added: 5 deals, 5 candidates, jobs, matches, notes, meetings and emails.",
+      : "Demo data added: 5 clients, 5 candidates, jobs, matches, notes, meetings and emails.",
   };
 }

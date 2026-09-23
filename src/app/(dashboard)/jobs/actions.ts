@@ -54,6 +54,8 @@ export async function updateJobMatchStatus(
   revalidatePath(`/jobs/${jobId}`);
   revalidatePath("/jobs");
   revalidatePath("/candidates");
+  revalidatePath("/clients");
+  revalidatePath("/dashboard");
 }
 
 export async function removeMatch(jobId: string, formData: FormData) {

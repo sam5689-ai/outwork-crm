@@ -5,7 +5,7 @@ import { listCalendarEvents } from "@/lib/google-calendar";
 import { Card } from "@/components/ui/card";
 
 /**
- * Read-only "next 5 upcoming meetings" widget for a Deal/Candidate detail
+ * Read-only "next 5 upcoming meetings" widget for a Client/Candidate detail
  * page - looks up events on the current user's Google Calendar where the
  * linked contact's email is an attendee. Fails quietly (no Google
  * connected, API error) rather than breaking the page it's embedded in.
@@ -30,7 +30,7 @@ export async function UpcomingMeetingsCard({
   return (
     <Card>
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-neutral-900">
+        <h2 className="font-display text-base font-semibold text-ink">
           <CalendarDays className="mr-2 inline h-4 w-4 text-neutral-400" />
           Upcoming Meetings
         </h2>

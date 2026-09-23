@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
     name: `${contact.firstName} ${contact.lastName}`,
     company: contact.company,
     email: contact.email,
-    isDeal: Boolean(contact.client),
+    isClient: Boolean(contact.client),
     isCandidate: Boolean(contact.candidate),
     clientId: contact.client?.id ?? null,
     candidateId: contact.candidate?.id ?? null,

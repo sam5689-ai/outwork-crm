@@ -88,7 +88,7 @@ export default async function IntegrationsSettingsPage({
               <Mail className="h-5 w-5" />
             </div>
             <div>
-              <h2 className="text-sm font-semibold text-neutral-900">
+              <h2 className="font-display text-base font-semibold text-ink">
                 Google Account (Gmail &amp; Meet)
               </h2>
               <p className="mt-1 max-w-md text-sm text-neutral-500">
@@ -141,7 +141,7 @@ export default async function IntegrationsSettingsPage({
             <Video className="h-5 w-5" />
           </div>
           <div>
-            <h2 className="text-sm font-semibold text-neutral-900">
+            <h2 className="font-display text-base font-semibold text-ink">
               Scheduling Google Meet calls
             </h2>
             <p className="mt-1 max-w-md text-sm text-neutral-500">
@@ -160,7 +160,7 @@ export default async function IntegrationsSettingsPage({
             <Settings2 className="h-5 w-5" />
           </div>
           <div>
-            <h2 className="text-sm font-semibold text-neutral-900">
+            <h2 className="font-display text-base font-semibold text-ink">
               Google integration features
             </h2>
             <p className="mt-1 max-w-md text-sm text-neutral-500">

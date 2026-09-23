@@ -1,15 +1,24 @@
 # Outwork CRM
 
-A CRM for managing potential clients and candidates. Contacts can be converted
-into **clients** (companies you're placing candidates with) or **candidates**
-(people looking for work), each with their own pipeline:
+A jobs-centric CRM for a staffing business. **Jobs** are the unit of work:
+each one belongs to a **client** (a company you place with) and is filled by
+placing **candidates** into its openings.
 
+Reporting is built around two numbers:
+
+- **Jobs filled:** jobs that reached *Filled (Won)* this month / year to date.
+- **Clients landed:** clients whose *first* job was filled in the period. A
+  client that comes back for another job adds to jobs filled but not to
+  clients landed. Those show up as **repeat jobs filled**.
+
+Pipelines:
+
+- **Job stages:** Open → Matching → Client Review → Scheduled → Filled (Won) / Cancelled (Lost)
 - **Client stages:** Interested → Candidate Matched → Contract Signed → Trial Passed
-- **Candidate stages:** Sourced → Suitable For Roles → Matched To Client → Accepted
+- **Candidate stages:** Sourced → Suitable For Roles → Matched To Job → Accepted
 
-Candidates are matched to a client's open jobs, and matches move through
-Proposed → Accepted/Rejected. The app also scaffolds Gmail and Google Meet
-integration so emails and meetings can be linked to a contact's timeline.
+The app also integrates Gmail and Google Calendar/Meet so emails and meetings
+are linked to a contact's timeline.
 
 ## Tech stack
 

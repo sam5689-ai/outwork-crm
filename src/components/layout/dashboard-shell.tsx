@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { clsx } from "clsx";
 import { Sidebar } from "./sidebar";
+import { SIDEBAR_COOKIE } from "./sidebar-cookie";
 import { Topbar } from "./topbar";
-
-const SIDEBAR_COLLAPSED_KEY = "sidebar-collapsed";
 
 export function DashboardShell({
   name,
@@ -13,6 +12,7 @@ export function DashboardShell({
   companyName,
   logoUrl,
   inboxEnabled,
+  initialCollapsed = false,
   children,
 }: {
   name: string;
@@ -20,32 +20,17 @@ export function DashboardShell({
   companyName?: string;
   logoUrl?: string | null;
   inboxEnabled?: boolean;
+  initialCollapsed?: boolean;
   children: React.ReactNode;
 }) {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [collapsed, setCollapsed] = useState(false);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      try {
-        setCollapsed(localStorage.getItem(SIDEBAR_COLLAPSED_KEY) === "1");
-      } catch {
-        // localStorage unavailable (private browsing, etc.) - keep default
-      }
-    }, 0);
-    return () => clearTimeout(timer);
-  }, []);
+  const [collapsed, setCollapsed] = useState(initialCollapsed);
 
   function toggleCollapsed() {
-    setCollapsed((prev) => {
-      const next = !prev;
-      try {
-        localStorage.setItem(SIDEBAR_COLLAPSED_KEY, next ? "1" : "0");
-      } catch {
-        // ignore
-      }
-      return next;
-    });
+    const next = !collapsed;
+    setCollapsed(next);
+    // Cookie rather than localStorage so the server renders the right width.
+    document.cookie = `${SIDEBAR_COOKIE}=${next ? "1" : "0"}; path=/; max-age=31536000; samesite=lax`;
   }
 
   return (
@@ -57,15 +42,20 @@ export function DashboardShell({
         logoUrl={logoUrl}
         inboxEnabled={inboxEnabled}
         collapsed={collapsed}
-        onToggleCollapse={toggleCollapsed}
       />
       <div
         className={clsx(
           "flex min-h-screen flex-col transition-[padding] duration-200",
-          collapsed ? "lg:pl-20" : "lg:pl-64"
+          collapsed ? "lg:pl-[96px]" : "lg:pl-[252px]"
         )}
       >
-        <Topbar name={name} role={role} onMenuClick={() => setMobileOpen(true)} />
+        <Topbar
+          name={name}
+          role={role}
+          onMenuClick={() => setMobileOpen(true)}
+          sidebarCollapsed={collapsed}
+          onToggleSidebar={toggleCollapsed}
+        />
         <main className="flex-1 px-4 py-6 lg:px-8 lg:py-8">{children}</main>
       </div>
     </div>

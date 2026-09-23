@@ -116,7 +116,7 @@ export function CalendarApp() {
           >
             <ChevronRight className="h-4 w-4" />
           </button>
-          <h2 className="text-sm font-semibold text-neutral-900">
+          <h2 className="font-display text-base font-semibold text-ink">
             {rangeLabel(view, anchor)}
           </h2>
         </div>

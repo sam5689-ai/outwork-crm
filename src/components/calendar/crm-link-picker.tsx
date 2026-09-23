@@ -9,7 +9,7 @@ type SearchResult = {
   name: string;
   company: string | null;
   email: string | null;
-  isDeal: boolean;
+  isClient: boolean;
   isCandidate: boolean;
   clientId: string | null;
   candidateId: string | null;
@@ -21,7 +21,7 @@ export type PickedCrmLink = {
   label: string;
 } | null;
 
-/** Single-select search for linking a calendar event to a Contact, Deal or Candidate. */
+/** Single-select search for linking a calendar event to a Contact, Client or Candidate. */
 export function CrmLinkPicker({
   value,
   onChange,
@@ -63,7 +63,7 @@ export function CrmLinkPicker({
     return (
       <div className="flex items-center gap-2">
         <Badge className="bg-blue-50 text-blue-700">
-          {value.type === "client" ? "Deal" : value.type === "candidate" ? "Candidate" : "Contact"}
+          {value.type === "client" ? "Client" : value.type === "candidate" ? "Candidate" : "Contact"}
         </Badge>
         <span className="text-sm text-neutral-700">{value.label}</span>
         <button
@@ -85,7 +85,7 @@ export function CrmLinkPicker({
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         onFocus={() => setOpen(true)}
-        placeholder="Search contacts, deals, candidates..."
+        placeholder="Search contacts, clients, candidates..."
         className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
       />
       {open && query.trim() && results.length > 0 && (
@@ -103,7 +103,7 @@ export function CrmLinkPicker({
                 <span className="text-neutral-900">{result.name}</span>
                 <span className="text-xs text-neutral-400">Contact</span>
               </button>
-              {result.isDeal && result.clientId && (
+              {result.isClient && result.clientId && (
                 <button
                   type="button"
                   onClick={() => {
@@ -119,7 +119,7 @@ export function CrmLinkPicker({
                   <span className="text-neutral-700">
                     {result.company ?? result.name}
                   </span>
-                  <span className="text-xs text-neutral-400">Deal</span>
+                  <span className="text-xs text-neutral-400">Client</span>
                 </button>
               )}
               {result.isCandidate && result.candidateId && (
